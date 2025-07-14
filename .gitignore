@@ -1,0 +1,67 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+dist/
+build/
+.cache/
+.vite/
+.env
+.env.*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Logs
+logs
+*.log
+*.out
+*.pid
+*.seed
+
+# Vite
+.vite/
+dist/
+
+# React
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Python (Robot Framework)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env/
+.envrc
+venv/
+pip-log.txt
+htmlcov/
+coverage.xml
+robot_output.xml
+output.xml
+log.html
+report.html
+
+# CI artifacts
+coverage/
+.nyc_output/
+.coverage
+
+# Serverless Framework / CDK
+.serverless/
+.cdk.out/
