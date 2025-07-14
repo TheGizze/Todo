@@ -133,6 +133,25 @@ npm run dev
 
 The backend API will be available at `http://localhost:3000` (or your configured port).
 
+#### Backend API Endpoints
+
+Once your backend is running, you can test the following endpoints:
+
+- **GET** `/hello` - Returns a hello world message
+  ```bash
+  curl http://localhost:3000/hello
+  # Response: {"message":"Hello, world!"}
+  ```
+
+#### Backend Development Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build TypeScript to JavaScript
+- `npm start` - Start production server (requires build first)
+- `npm test` - Run unit tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage report
+
 ### 4. E2E Testing Setup (Python + Robot Framework)
 
 ```bash
@@ -161,11 +180,25 @@ You can run all services simultaneously using the following commands in separate
    ```bash
    cd frontend && npm run dev
    ```
+   Frontend will be available at: http://localhost:5173
 
 2. **Terminal 2** - Backend:
    ```bash
    cd backend && npm run dev
    ```
+   Backend API will be available at: http://localhost:3000
+
+### Quick API Test
+
+Once both services are running, you can test the API:
+
+```bash
+# Test the hello endpoint
+curl http://localhost:3000/hello
+
+# Expected response:
+# {"message":"Hello, world!"}
+```
 
 ### Building for Production
 
@@ -192,7 +225,11 @@ npm run test
 #### Unit Tests (Backend)
 ```bash
 cd backend
-npm run test
+npm test
+
+# Additional backend test commands:
+npm run test:watch    # Run tests in watch mode
+npm run test:coverage # Run tests with coverage report
 ```
 
 #### E2E Tests
