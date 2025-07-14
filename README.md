@@ -254,6 +254,19 @@ NODE_ENV=development
 DATABASE_URL=your_database_url
 ```
 
+## Continuous Integration
+
+### GitHub Actions
+
+This project includes automated testing via GitHub Actions:
+
+- **Backend Unit Tests**: Automatically runs when pull requests are made to the `develop` branch
+- **Multi-Node Testing**: Tests run on Node.js versions 18.x and 20.x
+- **Coverage Reports**: Generates test coverage reports
+- **Path-based Triggers**: Only runs when backend code changes
+
+The workflow file is located at `.github/workflows/backend-tests.yml`.
+
 ## Common Issues & Troubleshooting
 
 - **Port conflicts**: If default ports are in use, update the port numbers in your configuration
@@ -266,7 +279,7 @@ DATABASE_URL=your_database_url
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+5. Open a Pull Request to the `develop` branch
 
 ## License
 
