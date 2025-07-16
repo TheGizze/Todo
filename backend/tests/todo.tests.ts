@@ -37,3 +37,31 @@ describe('Delete list by id', () => {
         expect(response.body).toEqual({message: "No lists with id: 999"});
     });
 });
+
+describe('Add new list', () => {
+    it('should return 200 and created list', async() => {
+        const payload = {name: 'My new list'};
+        const response = await request(app).post('/lists').send(payload);
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({id: '3', title: 'My new list', items: []});
+    });
+
+    it('should return 400 if name is missing', async () => {
+        const response = await request(app).post('/lists').send({});
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ message: 'request body must contain name' });
+    });
+
+    it('should return 400 if name is not a string', async () => {
+        const response = await request(app).post('/lists').send({ name: 123 });
+        //expect(response.status).toBe(400);
+        expect(response.body).toEqual({ message: 'List name must be a string' });
+    });
+
+    it('should return 400 if name is empty string', async () => {
+        const response = await request(app).post('/lists').send({ name: '' });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ message: 'List name cannot be empty' });
+    });
+    
+});
