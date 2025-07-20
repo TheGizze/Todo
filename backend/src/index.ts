@@ -1,4 +1,3 @@
-// apps/backend/src/index.ts
 import express from 'express';
 import toDoListRoutes from './routes/toDoListRoutes';
 
