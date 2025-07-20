@@ -91,7 +91,7 @@ describe('Add new list', () => {
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ 
             message: "invalid name", 
-            violations: ["Must not contain special characters: `@#$%^&*+=[]{}\"\\|<>/?~"]
+            violations: ["Only letters, numbers, spaces, and basic punctuation (.,!?:;-_'()) are allowed"]
         });
     });
 
@@ -100,7 +100,7 @@ describe('Add new list', () => {
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ 
             message: "invalid name", 
-            violations: ["Must not contain special characters: `@#$%^&*+=[]{}\"\\|<>/?~"]
+            violations: ["Only letters, numbers, spaces, and basic punctuation (.,!?:;-_'()) are allowed"]
         });
     });
 
@@ -111,7 +111,7 @@ describe('Add new list', () => {
             message: "invalid name", 
             violations: [
                 "Must be at least 3 characters long",
-                "Must not contain special characters: `@#$%^&*+=[]{}\"\\|<>/?~"
+                "Only letters, numbers, spaces, and basic punctuation (.,!?:;-_'()) are allowed"
             ]
         });
     });
