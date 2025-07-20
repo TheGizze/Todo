@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import * as controller from '../src/controllers/toDoListController';
-import * as service from '../src/services/toDoListService';
-import { ToDoList } from '../src/models/ToDoList';
+import * as controller from '../../src/controllers/toDoListController';
+import * as service from '../../src/services/toDoListService';
+import { ToDoList } from '../../src/models/ToDoList';
 
 // Mock the service module
-jest.mock('../src/services/toDoListService');
+jest.mock('../../src/services/toDoListService');
 const mockedService = jest.mocked(service);
 
 // Helper function to create mock Request and Response objects

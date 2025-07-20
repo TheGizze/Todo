@@ -1,6 +1,6 @@
-import * as service from '../src/services/toDoListService'
-import { toDoLists } from '../src/mockDb'
-import { ToDoList } from '../src/models/ToDoList'
+import * as service from '../../src/services/toDoListService'
+import { toDoLists } from '../../src/mockDb'
+import { ToDoList } from '../../src/models/ToDoList'
 
 // Store original mock data for restoration
 const originalMockData: ToDoList[] = [
