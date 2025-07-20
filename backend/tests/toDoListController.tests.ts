@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import * as controller from '../src/controllers/toDoListController';
 import * as service from '../src/services/toDoListService';
 import { ToDoList } from '../src/models/ToDoList';
+import { title } from 'process';
 
 // Mock the service module
 jest.mock('../src/services/toDoListService');
@@ -192,8 +193,50 @@ describe('ToDoListController', () => {
             controller.getListById(req as Request, res as Response);
 
             expect(mockedService.getList).toHaveBeenCalledWith('99');
+                expect(res.status).toHaveBeenCalledWith(404);
+                expect(res.json).toHaveBeenCalledWith({message: "No list found with id: 99"});
+            });
+        });
+    });
+    describe('Update List', () => {
+        it('should return 200 and updated list', () => {
+                    // Mock the initial getList call to return an existing list
+        const existingList: ToDoList = {
+            id: "1",
+            title: "Original Title",
+            items: []
+        };
+        mockedService.getList.mockReturnValue(existingList);
+
+            const mockList: ToDoList = {
+                id: "1",
+                title: "Modified Sample To-Do List",
+                items: []
+            }
+            mockedService.updateListById.mockReturnValue(mockList);
+
+            const req = createMockReq({id: '1'}, {title: 'Modified Sample To-Do List'});
+            const res = createMockRes();
+
+            controller.updateList(req as Request, res as Response);
+
+            expect(mockedService.getList).toHaveBeenCalledWith('1');
+            expect(mockedService.updateListById).toHaveBeenCalledWith("1", 'Modified Sample To-Do List');
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(mockList);
+        });
+
+        it('should return 404 and error', () => {
+        // Mock the initial getList call to return an existing list
+
+            const req = createMockReq({id: '99'}, {title: 'Modified Sample To-Do List'});
+            const res = createMockRes();
+
+            controller.getListById(req as Request, res as Response);
+
+
+            expect(mockedService.getList).toHaveBeenCalledWith('99');
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalledWith({message: "No list found with id: 99"});
-        });
-    })
+    });
 });
