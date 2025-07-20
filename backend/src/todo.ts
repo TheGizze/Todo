@@ -10,29 +10,25 @@ const port = process.env.PORT || 3000;
 let nextId: number = 2
 
 app.get('/lists', (_req, res) => {
-  return res.json(toDoLists);
+  return res.status(200).json(toDoLists);
 });
 
 app.get('/lists/:id', (req, res) => {
     const listId = req.params.id;
     const list = toDoLists.find(list => list.id === listId);
-    if(list){
-        res.statusCode = 200;
-        return res.json(list);
-    };
-    res.statusCode = 404;
-    return res.json({ message: `No lists with id: ${listId}` });
+
+    if(list) return res.status(200).json(list);
+
+    return res.status(404).json({ message: `No lists with id: ${listId}` });
 });
 
 app.delete('/lists/:id', (req, res) => {
     const listId = req.params.id;
-    const listIndex = toDoLists.findIndex((list) => list.id == listId);
-    if(listIndex >= 0){
-        res.statusCode = 200;
-        return res.json(toDoLists.splice(listIndex)[0]);
-    };
-    res.statusCode = 404;
-    return res.json({ message: `No lists with id: ${listId}` });
+    const listIndex = toDoLists.findIndex((list) => list.id === listId);
+
+    if(listIndex >= 0) return res.status(200).json(toDoLists.splice(listIndex, 1)[0]);
+    
+    return res.status(404).json({ message: `No lists with id: ${listId}` });
 });
 
 app.post('/lists', (req, res) => {
@@ -58,6 +54,20 @@ app.post('/lists', (req, res) => {
     return res.status(200).json(newlist);
 
 });
+
+app.patch('/lists/:id', (req, res) =>{
+  if(req.body.name === undefined) return res.status(400).json({ message: "request body must contain name" });
+  const listIndex = toDoLists.findIndex((list) => list.id === req.params.id);
+
+  if(listIndex < 0) return res.status(404).json({ message: `No lists with id: ${req.params.id}` });
+  const violationMessages = helper.validateString(req.body.name);
+  
+  if(violationMessages.length > 0) return res.status(400).json({ message: 'invalid name', violations: violationMessages });
+    
+  toDoLists[listIndex].title = req.body.name;
+  return res.status(200).json(toDoLists[listIndex]);
+  
+})
 
 // Only start the server if this file is run directly (not imported for testing)
 if (require.main === module) {
