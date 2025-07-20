@@ -8,7 +8,9 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "test": "jest",
-    "test:watch": "jest --watch",
+    "test:unit": "jest tests/unit",
+    "test:integration": "jest tests/integration",
+    "test:watch": "jest --watch tests/unit",
     "test:coverage": "jest --coverage"
   },
   "keywords": [],
