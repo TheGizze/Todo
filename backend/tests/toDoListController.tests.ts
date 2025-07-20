@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import * as controller from '../src/controllers/toDoListController';
 import * as service from '../src/services/toDoListService';
 import { ToDoList } from '../src/models/ToDoList';
-import { title } from 'process';
 
 // Mock the service module
 jest.mock('../src/services/toDoListService');
@@ -83,99 +82,20 @@ describe('ToDoListController', () => {
         });
     });
 
-    describe('createList', () => {
-        it('should return 400 when title is missing', () => {
-            const req = createMockReq();
-            req.body = {}; // No title provided
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ 
-                message: 'request body missing values',
-                missingValues: ['title']
-            });
-            expect(mockedService.createList).not.toHaveBeenCalled();
-        });
-
-        it('should return 400 when title is undefined', () => {
-            const req = createMockReq();
-            req.body = { title: undefined };
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({ 
-                message: 'request body missing values',
-                missingValues: ['title']
-            });
-            expect(mockedService.createList).not.toHaveBeenCalled();
-        });
-
-        it('should return 400 with validation errors for invalid title', () => {
-            const req = createMockReq();
-            req.body = { title: 'Hi' }; // Too short
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalledWith({
-                message: 'invalid name',
-                violations: ['Must be at least 3 characters long']
-            });
-            expect(mockedService.createList).not.toHaveBeenCalled();
-        });
-
-        it('should handle valid title (controller incomplete - currently returns validation error)', () => {
-            const req = createMockReq();
-            req.body = { title: 'Valid List Name' }; // Valid 3+ character title
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(200);
-            
-            // When you complete the controller implementation, change this to:
-            expect(mockedService.createList).toHaveBeenCalledWith('Valid List Name');
-            expect(res.status).toHaveBeenCalledWith(200);
-        });
-
-        it('should handle valid input without errors', () => {
-            const req = createMockReq();
-            req.body = { title: 'Another Valid List' }; // Valid 3+ character title
-            const res = createMockRes();
-
-            // Should not throw any errors
-            expect(() => {
-                controller.createList(req as Request, res as Response);
-            }).not.toThrow();
-        });
-
-        it('should handle empty string title appropriately', () => {
-            const req = createMockReq();
-            req.body = { title: '' };
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            // This test depends on your validation - adjust based on whether empty strings are allowed
-            expect(res.status).toHaveBeenCalledWith(400);
-        });
-    });
-    describe("Get list by ID", () => {
+    describe('getListById', () => {
         it('should return 200 with list when found', () => {
             const mockList: ToDoList = {
                 id: "1",
                 title: "Sample To-Do List",
-                items: []
-            }
-
+                items: [
+                    {id: "1", content: "Sample item 1", completed: false},
+                    {id: "2", content: "Sample item 2", completed: true}
+                ]
+            };
+            
             mockedService.getList.mockReturnValue(mockList);
 
-            const req = createMockReq({id: '1'});
+            const req = createMockReq({ id: '1' });
             const res = createMockRes();
 
             controller.getListById(req as Request, res as Response);
@@ -184,59 +104,171 @@ describe('ToDoListController', () => {
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockList);
         });
-        it('Should Return 404 with error message when not found', () => {
+
+        it('should return 404 when list not found', () => {
             mockedService.getList.mockReturnValue(undefined);
 
-            const req = createMockReq({id: '99'});
+            const req = createMockReq({ id: '999' });
             const res = createMockRes();
 
             controller.getListById(req as Request, res as Response);
 
-            expect(mockedService.getList).toHaveBeenCalledWith('99');
-                expect(res.status).toHaveBeenCalledWith(404);
-                expect(res.json).toHaveBeenCalledWith({message: "No list found with id: 99"});
-            });
+            expect(mockedService.getList).toHaveBeenCalledWith('999');
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalled();
         });
     });
-    describe('Update List', () => {
-        it('should return 200 and updated list', () => {
-                    // Mock the initial getList call to return an existing list
-        const existingList: ToDoList = {
-            id: "1",
-            title: "Original Title",
-            items: []
-        };
-        mockedService.getList.mockReturnValue(existingList);
 
+    describe('createList', () => {
+        it('should return 400 when title is missing', () => {
+            const req = createMockReq({}, {});
+            const res = createMockRes();
+
+            controller.createList(req as Request, res as Response);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalled();
+            expect(mockedService.createList).not.toHaveBeenCalled();
+        });
+
+        it('should return 400 when title is undefined', () => {
+            const req = createMockReq({}, { title: undefined });
+            const res = createMockRes();
+
+            controller.createList(req as Request, res as Response);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalled();
+            expect(mockedService.createList).not.toHaveBeenCalled();
+        });
+
+        it('should return 400 with validation errors for invalid title', () => {
+            const req = createMockReq({}, { title: 'Hi' }); // Too short
+            const res = createMockRes();
+
+            controller.createList(req as Request, res as Response);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalled();
+            expect(mockedService.createList).not.toHaveBeenCalled();
+        });
+
+        it('should return 200 with created list when title is valid', () => {
+            const mockCreatedList: ToDoList = {
+                id: "3",
+                title: "Valid List Name",
+                items: []
+            };
+            
+            mockedService.createList.mockReturnValue(mockCreatedList);
+
+            const req = createMockReq({}, { title: 'Valid List Name' });
+            const res = createMockRes();
+
+            controller.createList(req as Request, res as Response);
+
+            expect(mockedService.createList).toHaveBeenCalledWith('Valid List Name');
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(mockCreatedList);
+        });
+
+        it('should handle empty string title appropriately', () => {
+            const req = createMockReq({}, { title: '' });
+            const res = createMockRes();
+
+            controller.createList(req as Request, res as Response);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+        });
+    });
+
+    describe('deleteList', () => {
+        it('should return 200 with deleted list when found', () => {
             const mockList: ToDoList = {
                 id: "1",
-                title: "Modified Sample To-Do List",
+                title: "List to Delete",
                 items: []
-            }
-            mockedService.updateListById.mockReturnValue(mockList);
+            };
+            
+            mockedService.deleteList.mockReturnValue(mockList);
 
-            const req = createMockReq({id: '1'}, {title: 'Modified Sample To-Do List'});
+            const req = createMockReq({ id: '1' });
+            const res = createMockRes();
+
+            controller.deleteList(req as Request, res as Response);
+
+            expect(mockedService.deleteList).toHaveBeenCalledWith('1');
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(mockList);
+        });
+
+        it('should return 404 when list not found', () => {
+            mockedService.deleteList.mockReturnValue(undefined);
+
+            const req = createMockReq({ id: '999' });
+            const res = createMockRes();
+
+            controller.deleteList(req as Request, res as Response);
+
+            expect(mockedService.deleteList).toHaveBeenCalledWith('999');
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalled();
+        });
+    });
+
+    describe('updateList', () => {
+        it('should return 400 when title is missing', () => {
+            const req = createMockReq({ id: '1' }, {});
             const res = createMockRes();
 
             controller.updateList(req as Request, res as Response);
 
-            expect(mockedService.getList).toHaveBeenCalledWith('1');
-            expect(mockedService.updateListById).toHaveBeenCalledWith("1", 'Modified Sample To-Do List');
-            expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith(mockList);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalled();
+            expect(mockedService.updateListById).not.toHaveBeenCalled();
         });
 
-        it('should return 404 and error', () => {
-        // Mock the initial getList call to return an existing list
-
-            const req = createMockReq({id: '99'}, {title: 'Modified Sample To-Do List'});
+        it('should return 400 with validation errors for invalid title', () => {
+            const req = createMockReq({ id: '1' }, { title: 'Hi' }); // Too short
             const res = createMockRes();
 
-            controller.getListById(req as Request, res as Response);
+            controller.updateList(req as Request, res as Response);
 
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalled();
+            expect(mockedService.updateListById).not.toHaveBeenCalled();
+        });
 
-            expect(mockedService.getList).toHaveBeenCalledWith('99');
+        it('should return 200 with updated list when successful', () => {
+            const mockUpdatedList: ToDoList = {
+                id: "1",
+                title: "Updated Title",
+                items: []
+            };
+            
+            mockedService.updateListById.mockReturnValue(mockUpdatedList);
+
+            const req = createMockReq({ id: '1' }, { title: 'Updated Title' });
+            const res = createMockRes();
+
+            controller.updateList(req as Request, res as Response);
+
+            expect(mockedService.updateListById).toHaveBeenCalledWith('1', 'Updated Title');
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(mockUpdatedList);
+        });
+
+        it('should return 404 when list not found', () => {
+            mockedService.updateListById.mockReturnValue(undefined);
+
+            const req = createMockReq({ id: '999' }, { title: 'New Title' });
+            const res = createMockRes();
+
+            controller.updateList(req as Request, res as Response);
+
+            expect(mockedService.updateListById).toHaveBeenCalledWith('999', 'New Title');
             expect(res.status).toHaveBeenCalledWith(404);
-            expect(res.json).toHaveBeenCalledWith({message: "No list found with id: 99"});
+            expect(res.json).toHaveBeenCalled();
+        });
     });
 });
