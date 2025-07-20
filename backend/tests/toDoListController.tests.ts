@@ -164,4 +164,36 @@ describe('ToDoListController', () => {
             expect(res.status).toHaveBeenCalledWith(400);
         });
     });
+    describe("Get list by ID", () => {
+        it('should return 200 with list when found', () => {
+            const mockList: ToDoList = {
+                id: "1",
+                title: "Sample To-Do List",
+                items: []
+            }
+
+            mockedService.getList.mockReturnValue(mockList);
+
+            const req = createMockReq({id: '1'});
+            const res = createMockRes();
+
+            controller.getListById(req as Request, res as Response);
+
+            expect(mockedService.getList).toHaveBeenCalledWith('1');
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(mockList);
+        });
+        it('Should Return 404 with error message when not found', () => {
+            mockedService.getList.mockReturnValue(undefined);
+
+            const req = createMockReq({id: '99'});
+            const res = createMockRes();
+
+            controller.getListById(req as Request, res as Response);
+
+            expect(mockedService.getList).toHaveBeenCalledWith('99');
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({message: "No list found with id: 99"});
+        });
+    })
 });
