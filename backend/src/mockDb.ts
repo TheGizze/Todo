@@ -1,4 +1,4 @@
-import { ToDoList } from './types';
+import { ToDoList } from './models/ToDoList';
 
 export const toDoLists: ToDoList[] = [
     {
