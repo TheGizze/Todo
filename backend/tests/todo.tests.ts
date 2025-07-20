@@ -63,9 +63,59 @@ describe('Add new list', () => {
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ message: "invalid name", 
             violations: ["Must not be empty.",
-                         "Must be at least 3 characters long",
-                         "Use only valid characters a-zA-Z0-9 "
+                         "Must be at least 3 characters long"
                         ], });
     });
+
+    it('should return 400 if name is too short (less than 3 characters)', async () => {
+        const response = await request(app).post('/lists').send({ name: 'Hi' });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ 
+            message: "invalid name", 
+            violations: ["Must be at least 3 characters long"]
+        });
+    });
+
+    it('should return 400 if name is too long (more than 50 characters)', async () => {
+        const longName = 'This is a very long name that exceeds fifty characters limit for validation testing';
+        const response = await request(app).post('/lists').send({ name: longName });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ 
+            message: "invalid name", 
+            violations: ["Can't be longer than 50 characters"]
+        });
+    });
+
+    it('should return 400 if name contains special characters', async () => {
+        const response = await request(app).post('/lists').send({ name: 'My List@#$' });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ 
+            message: "invalid name", 
+            violations: ["Must not contain special characters: `@#$%^&*+=[]{}\"\\|<>/?~"]
+        });
+    });
+
+    it('should return 400 if name contains invalid characters', async () => {
+        const response = await request(app).post('/lists').send({ name: 'My List@' });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ 
+            message: "invalid name", 
+            violations: ["Must not contain special characters: `@#$%^&*+=[]{}\"\\|<>/?~"]
+        });
+    });
+
+    it('should return 400 with multiple validation errors', async () => {
+        const response = await request(app).post('/lists').send({ name: 'A@' });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ 
+            message: "invalid name", 
+            violations: [
+                "Must be at least 3 characters long",
+                "Must not contain special characters: `@#$%^&*+=[]{}\"\\|<>/?~"
+            ]
+        });
+    });
+
+    
     
 });
