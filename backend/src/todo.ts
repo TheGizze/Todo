@@ -37,7 +37,7 @@ app.delete('/lists/:id', (req, res) => {
 
 app.post('/lists', (req, res) => {
 
-    if(!req.body.name){
+    if(req.body.name === undefined){
       return res.status(400).json({message: 'request body must contain name'});
     }
     const violationMessages: string[] = helper.validateString(req.body.name);

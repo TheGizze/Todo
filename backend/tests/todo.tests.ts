@@ -54,14 +54,18 @@ describe('Add new list', () => {
 
     it('should return 400 if name is not a string', async () => {
         const response = await request(app).post('/lists').send({ name: 123 });
-        //expect(response.status).toBe(400);
-        expect(response.body).toEqual({ message: 'List name must be a string' });
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ message: "invalid name", violations: ["Must be a string"] });
     });
 
     it('should return 400 if name is empty string', async () => {
         const response = await request(app).post('/lists').send({ name: '' });
         expect(response.status).toBe(400);
-        expect(response.body).toEqual({ message: 'List name cannot be empty' });
+        expect(response.body).toEqual({ message: "invalid name", 
+            violations: ["Must not be empty.",
+                         "Must be at least 3 characters long",
+                         "Use only valid characters a-zA-Z0-9 "
+                        ], });
     });
     
 });
