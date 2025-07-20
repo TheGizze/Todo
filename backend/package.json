@@ -2,10 +2,10 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "todo.js",
   "scripts": {
-    "dev": "ts-node src/index.ts",
-    "start": "node dist/index.js",
+    "dev": "ts-node src/todo.ts",
+    "start": "node dist/todo.js",
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
