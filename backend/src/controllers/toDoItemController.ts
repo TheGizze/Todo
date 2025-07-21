@@ -11,15 +11,15 @@ export const createItem = (_req: Request, res: Response) => {
     if (validationErrors.length > 0) return res.status(400).json(errors.invalidItemContent(validationErrors));
     
     const newItem = ToDoService.createListItem(_req.params.listId, _req.body.content);
-    if (!newItem) return res.status(404).json(errors.listNotFound(_req.params.id));
+    if (!newItem) return res.status(404).json(errors.listNotFound(_req.params.listId));
 
     return res.status(200).json(newItem);
 };
 
 export const getListItems = (_req: Request, res: Response) => {
-    const items = ToDoService.getListItems(_req.params.ListId);
+    const items = ToDoService.getListItems(_req.params.listId);
 
-    if (!items) return res.status(404).json(errors.listNotFound);
+    if (!items) return res.status(404).json(errors.listNotFound(_req.params.listId));
 
     return res.status(200).json(items);
 };
