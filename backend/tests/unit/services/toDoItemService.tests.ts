@@ -36,7 +36,9 @@ describe('ToDoItemService', () => {
 
     beforeEach(() => {
         toDoLists.length = 0;
-        toDoLists.push(...originalMockData);
+
+        // Add fresh copies of the original data (deep clone to avoid reference issues)
+        toDoLists.push(...JSON.parse(JSON.stringify(originalMockData)));
 
         jest.clearAllMocks();
     });
@@ -77,30 +79,145 @@ describe('ToDoItemService', () => {
 
     });
 
-/*     //Read Items
+    //Read Items
     describe('Get all Items', () => {
-        
+        it('should return items from existing list', () => {
+            const items = service.getListItems('list-sample1');
+            expect(items).toBeDefined();
+            expect(items).toHaveLength(2);
+            expect(items?.[0].id).toBe('item-sample1');
+            expect(items?.[1].id).toBe('item-sample2');
+        });
+
+        it('should return undefined for non-existent list', () => {
+            const items = service.getListItems('list-nonexistent');
+            expect(items).toBeUndefined();
+        });
+
+        it('should return empty array for list with no items', () => {
+            // Add a list with no items to test data
+            toDoLists.push({
+                id: 'list-empty',
+                title: 'Empty List',
+                items: []
+            });
+
+            const items = service.getListItems('list-empty');
+            expect(items).toBeDefined();
+            expect(items).toHaveLength(0);
+        });
     });
-    
-    //Read Item
+
     describe('Get item by id', () => {
-        
+        it('should return specific item from existing list', () => {
+            const item = service.getListItem('list-sample1', 'item-sample1');
+            expect(item).toBeDefined();
+            expect(item?.id).toBe('item-sample1');
+            expect(item?.content).toBe('Sample item 1');
+            expect(item?.completed).toBe(false);
+        });
+
+        it('should return undefined for non-existent item in existing list', () => {
+            const item = service.getListItem('list-sample1', 'item-nonexistent');
+            expect(item).toBeUndefined();
+        });
+
+        it('should return undefined for item in non-existent list', () => {
+            const item = service.getListItem('list-nonexistent', 'item-sample1');
+            expect(item).toBeUndefined();
+        });
     });
 
-
-    //Update Item
     describe('Update item by id', () => {
-        
+        it('should update existing item with partial data', () => {
+            const updatedItem = service.updateListItem('list-sample1', 'item-sample1', {
+                completed: true
+            });
+
+            expect(updatedItem).toBeDefined();
+            expect(updatedItem?.id).toBe('item-sample1');
+            expect(updatedItem?.content).toBe('Sample item 1'); // unchanged
+            expect(updatedItem?.completed).toBe(true); // updated
+        });
+
+        it('should update multiple properties of existing item', () => {
+            const updatedItem = service.updateListItem('list-sample1', 'item-sample1', {
+                content: 'Updated content',
+                completed: true
+            });
+
+            expect(updatedItem).toBeDefined();
+            expect(updatedItem?.id).toBe('item-sample1');
+            expect(updatedItem?.content).toBe('Updated content');
+            expect(updatedItem?.completed).toBe(true);
+        });
+
+        it('should return undefined for non-existent item', () => {
+            const result = service.updateListItem('list-sample1', 'item-nonexistent', {
+                completed: true
+            });
+
+            expect(result).toBeUndefined();
+        });
+
+        it('should return undefined for item in non-existent list', () => {
+            const result = service.updateListItem('list-nonexistent', 'item-sample1', {
+                completed: true
+            });
+
+            expect(result).toBeUndefined();
+        });
+
+        it('should actually modify the item in the list', () => {
+            service.updateListItem('list-sample1', 'item-sample1', { completed: true });
+            
+            const retrievedItem = service.getListItem('list-sample1', 'item-sample1');
+            expect(retrievedItem?.completed).toBe(true);
+        });
     });
 
-    //Delete Items
-    describe('Delete All Items from list', () => {
-        
+    describe('Delete item by id', () => {
+        it('should delete existing item and return it', () => {
+            const deletedItem = service.deleteItem('list-sample1', 'item-sample1');
+
+            expect(deletedItem).toBeDefined();
+            expect(deletedItem?.id).toBe('item-sample1');
+            expect(deletedItem?.content).toBe('Sample item 1');
+            expect(deletedItem?.completed).toBe(false);
+        });
+
+        it('should remove item from the list', () => {
+            const initialLength = service.getListItems('list-sample1')?.length || 0;
+            
+            service.deleteItem('list-sample1', 'item-sample1');
+            
+            const items = service.getListItems('list-sample1');
+            expect(items).toHaveLength(initialLength - 1);
+            
+            const deletedItem = service.getListItem('list-sample1', 'item-sample1');
+            expect(deletedItem).toBeUndefined();
+        });
+
+        it('should return undefined for non-existent item', () => {
+            const result = service.deleteItem('list-sample1', 'item-nonexistent');
+            expect(result).toBeUndefined();
+        });
+
+        it('should return undefined for item in non-existent list', () => {
+            const result = service.deleteItem('list-nonexistent', 'item-sample1');
+            expect(result).toBeUndefined();
+        });
+
+        it('should not affect other items when deleting', () => {
+            const allItemsBefore = service.getListItems('list-sample1');
+            const otherItems = allItemsBefore?.filter(item => item.id !== 'item-sample1');
+            
+            service.deleteItem('list-sample1', 'item-sample1');
+            
+            const allItemsAfter = service.getListItems('list-sample1');
+            expect(allItemsAfter).toEqual(otherItems);
+        });
     });
-    // Delete Item
-    describe('delete item by id', () => {
-        
-    }); */
 
 
 
