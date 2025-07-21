@@ -30,3 +30,11 @@ export const getListItem = (_req: Request, res: Response) => {
 
     return res.status(200).json(item);
 };
+
+export const deleteListItem = (_req: Request, res: Response) => {
+    const deletedItem = ToDoService.deleteItem(_req.params.listId, _req.params.itemId);
+    
+    if (!deletedItem) return res.status(200).json(errors.listOrItemNotFound(_req.params.listId, _req.params.itemId));
+
+    return res.status(200).json(deletedItem);
+};
