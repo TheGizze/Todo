@@ -6,19 +6,19 @@ import { ToDoList } from '../../src/models/ToDoList';
 // Store original mock data for restoration
 const originalMockData: ToDoList[] = [
     {
-        "id": "1",
+        "id": "list-sample1",
         "title": "Sample To-Do List",
         "items": [
-            {"id": "1", "content": "Sample item 1", "completed": false},
-            {"id": "2", "content": "Sample item 2", "completed": true}
+            {"id": "item-sample1", "content": "Sample item 1", "completed": false},
+            {"id": "item-sample2", "content": "Sample item 2", "completed": true}
         ]
     },
     {
-        "id": "2",
+        "id": "list-sample2",
         "title": "Another To-Do List",
         "items": [
-            {"id": "1", "content": "Another item 1", "completed": false},
-            {"id": "2", "content": "Another item 2", "completed": false}
+            {"id": "item-another1", "content": "Another item 1", "completed": false},
+            {"id": "item-another2", "content": "Another item 2", "completed": false}
         ]
     }
 ];
@@ -77,22 +77,22 @@ describe('ToDoList API Integration Tests', () => {
     describe('GET /api/lists/:id', () => {
         it('should return 200 and the specific list when it exists', async () => {
             const response = await request(app)
-                .get('/api/lists/1')
+                .get('/api/lists/list-sample1')
                 .expect(200);
 
             expect(response.body).toEqual({
-                "id": "1",
+                "id": "list-sample1",
                 "title": "Sample To-Do List",
                 "items": [
-                    {"id": "1", "content": "Sample item 1", "completed": false},
-                    {"id": "2", "content": "Sample item 2", "completed": true}
+                    {"id": "item-sample1", "content": "Sample item 1", "completed": false},
+                    {"id": "item-sample2", "content": "Sample item 2", "completed": true}
                 ]
             });
         });
 
         it('should return 404 when list does not exist', async () => {
             const response = await request(app)
-                .get('/api/lists/999')
+                .get('/api/lists/list-nonexistent')
                 .expect(404);
 
             expect(response.body).toHaveProperty('message');
@@ -101,7 +101,7 @@ describe('ToDoList API Integration Tests', () => {
 
         it('should return correct list structure', async () => {
             const response = await request(app)
-                .get('/api/lists/2')
+                .get('/api/lists/list-sample2')
                 .expect(200);
 
             expect(response.body).toEqual(
@@ -119,7 +119,7 @@ describe('ToDoList API Integration Tests', () => {
             const newListData = { title: 'New Integration Test List' };
 
             const response = await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .send(newListData)
                 .expect(200);
 
@@ -131,7 +131,7 @@ describe('ToDoList API Integration Tests', () => {
 
         it('should return 400 when title is missing', async () => {
             const response = await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .send({})
                 .expect(400);
 
@@ -142,7 +142,7 @@ describe('ToDoList API Integration Tests', () => {
 
         it('should return 400 when title is too short', async () => {
             const response = await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .send({ title: 'Hi' })
                 .expect(400);
 
@@ -155,7 +155,7 @@ describe('ToDoList API Integration Tests', () => {
             const longTitle = 'a'.repeat(101); // Assuming max length is 100
             
             const response = await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .send({ title: longTitle })
                 .expect(400);
 
@@ -168,7 +168,7 @@ describe('ToDoList API Integration Tests', () => {
             const initialCount = toDoLists.length;
             
             await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .send({ title: 'Persistent Test List' })
                 .expect(200);
 
@@ -179,7 +179,7 @@ describe('ToDoList API Integration Tests', () => {
             const specialTitle = 'List with spaces and numbers 123';
             
             const response = await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .send({ title: specialTitle })
                 .expect(200);
 
@@ -192,21 +192,21 @@ describe('ToDoList API Integration Tests', () => {
             const updateData = { title: 'Updated List Title' };
 
             const response = await request(app)
-                .patch('/api/list/1')
+                .patch('/api/lists/list-sample1')
                 .send(updateData)
                 .expect(200);
 
-            expect(response.body.id).toBe('1');
+            expect(response.body.id).toBe('list-sample1');
             expect(response.body.title).toBe('Updated List Title');
             expect(response.body.items).toEqual([
-                {"id": "1", "content": "Sample item 1", "completed": false},
-                {"id": "2", "content": "Sample item 2", "completed": true}
+                {"id": "item-sample1", "content": "Sample item 1", "completed": false},
+                {"id": "item-sample2", "content": "Sample item 2", "completed": true}
             ]);
         });
 
         it('should return 404 when trying to update non-existent list', async () => {
             const response = await request(app)
-                .patch('/api/list/999')
+                .patch('/api/lists/list-nonexistent')
                 .send({ title: 'Updated Title' })
                 .expect(404);
 
@@ -216,7 +216,7 @@ describe('ToDoList API Integration Tests', () => {
 
         it('should return 400 when title is missing', async () => {
             const response = await request(app)
-                .patch('/api/list/1')
+                .patch('/api/lists/list-sample1')
                 .send({})
                 .expect(400);
 
@@ -227,7 +227,7 @@ describe('ToDoList API Integration Tests', () => {
 
         it('should return 400 when title is invalid', async () => {
             const response = await request(app)
-                .patch('/api/list/1')
+                .patch('/api/lists/list-sample1')
                 .send({ title: 'Hi' })
                 .expect(400);
 
@@ -237,11 +237,11 @@ describe('ToDoList API Integration Tests', () => {
         });
 
         it('should preserve items when updating title', async () => {
-            const originalResponse = await request(app).get('/api/lists/1');
+            const originalResponse = await request(app).get('/api/lists/list-sample1');
             const originalItems = originalResponse.body.items;
 
             const updateResponse = await request(app)
-                .patch('/api/list/1')
+                .patch('/api/lists/list-sample1')
                 .send({ title: 'New Title' })
                 .expect(200);
 
@@ -250,12 +250,12 @@ describe('ToDoList API Integration Tests', () => {
 
         it('should actually modify the list in the database', async () => {
             await request(app)
-                .patch('/api/list/1')
+                .patch('/api/lists/list-sample1')
                 .send({ title: 'Permanently Updated' })
                 .expect(200);
 
             const verifyResponse = await request(app)
-                .get('/api/lists/1')
+                .get('/api/lists/list-sample1')
                 .expect(200);
 
             expect(verifyResponse.body.title).toBe('Permanently Updated');
@@ -265,16 +265,16 @@ describe('ToDoList API Integration Tests', () => {
     describe('DELETE /api/list/:id', () => {
         it('should delete an existing list and return 200', async () => {
             const response = await request(app)
-                .delete('/api/list/2')
+                .delete('/api/lists/list-sample2')
                 .expect(200);
 
-            expect(response.body.id).toBe('2');
+            expect(response.body.id).toBe('list-sample2');
             expect(response.body.title).toBe('Another To-Do List');
         });
 
         it('should return 404 when trying to delete non-existent list', async () => {
             const response = await request(app)
-                .delete('/api/list/999')
+                .delete('/api/lists/list-nonexistent')
                 .expect(404);
 
             expect(response.body).toHaveProperty('message');
@@ -285,23 +285,23 @@ describe('ToDoList API Integration Tests', () => {
             const initialCount = toDoLists.length;
 
             await request(app)
-                .delete('/api/list/1')
+                .delete('/api/lists/list-sample1')
                 .expect(200);
 
             expect(toDoLists).toHaveLength(initialCount - 1);
 
             // Verify the list is gone
             await request(app)
-                .get('/api/lists/1')
+                .get('/api/lists/list-sample1')
                 .expect(404);
         });
 
         it('should not affect other lists when deleting', async () => {
             const allListsBefore = await request(app).get('/api/lists');
-            const otherLists = allListsBefore.body.filter((list: any) => list.id !== '2');
+            const otherLists = allListsBefore.body.filter((list: any) => list.id !== 'list-sample2');
 
             await request(app)
-                .delete('/api/list/2')
+                .delete('/api/lists/list-sample2')
                 .expect(200);
 
             const allListsAfter = await request(app).get('/api/lists');
@@ -312,7 +312,7 @@ describe('ToDoList API Integration Tests', () => {
     describe('Error Handling', () => {
         it('should handle malformed JSON in POST requests', async () => {
             const response = await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .set('Content-Type', 'application/json')
                 .send('{"title": invalid json}')
                 .expect(400);
@@ -320,7 +320,7 @@ describe('ToDoList API Integration Tests', () => {
 
         it('should handle malformed JSON in PATCH requests', async () => {
             const response = await request(app)
-                .patch('/api/list/1')
+                .patch('/api/lists/list-sample1')
                 .set('Content-Type', 'application/json')
                 .send('{"title": invalid json}')
                 .expect(400);
@@ -339,7 +339,7 @@ describe('ToDoList API Integration Tests', () => {
         it('should support full CRUD workflow', async () => {
             // Create a new list
             const createResponse = await request(app)
-                .post('/api/list')
+                .post('/api/lists')
                 .send({ title: 'E2E Test List' })
                 .expect(200);
 
@@ -354,7 +354,7 @@ describe('ToDoList API Integration Tests', () => {
 
             // Update the list
             const updateResponse = await request(app)
-                .patch(`/api/list/${listId}`)
+                .patch(`/api/lists/${listId}`)
                 .send({ title: 'Updated E2E List' })
                 .expect(200);
 
@@ -362,7 +362,7 @@ describe('ToDoList API Integration Tests', () => {
 
             // Delete the list
             await request(app)
-                .delete(`/api/list/${listId}`)
+                .delete(`/api/lists/${listId}`)
                 .expect(200);
 
             // Verify deletion
@@ -376,16 +376,16 @@ describe('ToDoList API Integration Tests', () => {
             const initialCount = initialLists.body.length;
 
             // Create multiple lists
-            await request(app).post('/api/list').send({ title: 'List A' });
-            await request(app).post('/api/list').send({ title: 'List B' });
-            await request(app).post('/api/list').send({ title: 'List C' });
+            await request(app).post('/api/lists').send({ title: 'List A' });
+            await request(app).post('/api/lists').send({ title: 'List B' });
+            await request(app).post('/api/lists').send({ title: 'List C' });
 
             const afterCreate = await request(app).get('/api/lists');
             expect(afterCreate.body).toHaveLength(initialCount + 3);
 
             // Delete one list
             const listToDelete = afterCreate.body.find((list: any) => list.title === 'List B');
-            await request(app).delete(`/api/list/${listToDelete.id}`);
+            await request(app).delete(`/api/lists/${listToDelete.id}`);
 
             const afterDelete = await request(app).get('/api/lists');
             expect(afterDelete.body).toHaveLength(initialCount + 2);
