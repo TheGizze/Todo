@@ -29,6 +29,7 @@ export const updateListItem = (listId: string, itemId: string, updates: Partial 
     return result.items[result.index];
 };
 
+//refactor deleteItem to DeleteListItem for consistensy
 export const deleteItem = (listId: string, itemId: string): ToDoItem | undefined => {
     const result = findItemInList(listId, itemId);
     if (!result) return undefined;
