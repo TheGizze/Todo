@@ -1,8 +1,6 @@
 import { toDoLists } from "../mockDb";
 import { ToDoList } from "../models/ToDoList";
-
-
-let nextId: number = 2
+import { generateListId } from "../utils/idGenerator";
 
 export const getLists = (): ToDoList[] => toDoLists;
 
@@ -23,10 +21,8 @@ export const deleteList = (id: string): ToDoList | undefined => {
 }
 
 export const createList = (title: string): ToDoList => {
-    
-    nextId++;
     const newlist: ToDoList = {
-        id: nextId.toString(),
+        id: generateListId(),
         title: title,
         items: []
     }
