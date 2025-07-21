@@ -44,22 +44,35 @@ describe('ToDoItemService', () => {
     //Create Item
     describe('Create new item to a list', () => {
         it('Should return new item when list exists', () => {
-            const mockedGenerateItemtId = idGenerator.generateItemId as jest.MockedFunction<typeof idGenerator.generateItemId>;
-            mockedGenerateItemtId.mockReturnValue('item-test123');
+            const mockedGenerateItemId = idGenerator.generateItemId as jest.MockedFunction<typeof idGenerator.generateItemId>;
+            mockedGenerateItemId.mockReturnValue('item-test123');
 
             const newItem = service.createListItem('list-sample1', 'new sample item');
 
             expect(newItem).toBeDefined();
-            if(newItem){
-                expect(newItem.id).toBe('item-test123');
-                expect(newItem.content).toBe('new sample item');
-                expect(newItem.completed).toBe(false);
-            };
+            expect(mockedGenerateItemId).toHaveBeenCalledTimes(1);
+            expect(newItem?.id).toBe('item-test123');
+            expect(newItem?.content).toBe('new sample item');
+            expect(newItem?.completed).toBe(false);
+ 
             
         });
         it('Should return undefined when list is not found', () => {
             const newItem = service.createListItem('list-sample99', 'new sample item');
             expect(newItem).toBe(undefined);
+        });
+        it('Should add new item to a list', () => {
+            const initialLength = toDoLists.find(list => list.id === 'list-sample1')?.items.length || 0;
+
+            const mockedGenerateItemtId = idGenerator.generateItemId as jest.MockedFunction<typeof idGenerator.generateItemId>;
+            mockedGenerateItemtId.mockReturnValue('item-test123');
+
+            const newItem = service.createListItem('list-sample1', 'new sample item');
+            const list = toDoLists.find(list => list.id === 'list-sample1');
+
+            expect(list?.items).toHaveLength(initialLength + 1);
+            expect(list?.items).toContain(newItem);
+            
         });
 
     });
