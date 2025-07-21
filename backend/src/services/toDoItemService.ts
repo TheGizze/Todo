@@ -1,12 +1,19 @@
 import { ToDoItem } from "../models/ToDoItem";
 import { getList } from "./toDoListService";
+import { generateItemId } from "../utils/idGenerator";
 
-export const createListItem = (listId: string, listItem: ToDoItem): ToDoItem | undefined => {
+export const createListItem = (listId: string, listItemContent: string): ToDoItem | undefined => {
     const items = getListItems(listId);
     if (!items) return undefined;
+
+    const newItem: ToDoItem = {
+        id: generateItemId(),
+        content: listItemContent,
+        completed: false
+    }
     
-    items.push(listItem);
-    return listItem;
+    items.push(newItem);
+    return newItem;
 };
 
 export const getListItems = (listId: string): ToDoItem[] | undefined => getList(listId)?.items;
