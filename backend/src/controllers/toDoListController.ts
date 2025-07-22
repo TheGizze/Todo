@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import * as ToDoService from '../services/toDoListService'
-import { errors } from '../responses/errorResponses'
+import { errors } from '../errors/errorResponses'
 import * as validator from '../validators/common'
-
+//import { ListNotFoundError } from "../errors/resourceErrors";
 
 export const getAllLists = (_req: Request, res: Response) => {
     const lists = ToDoService.getLists();
@@ -13,6 +13,7 @@ export const getList = (_req: Request, res: Response) => {
     //create unit tests
     const list = ToDoService.getList(_req.params.listId);
     if (!list) return res.status(404).json(errors.listNotFound(_req.params.listId));
+    //if (!list) throw new ListNotFoundError(`No list Found with id: ${_req.params.listId}`);
 
     return res.status(200).json(list);
 }

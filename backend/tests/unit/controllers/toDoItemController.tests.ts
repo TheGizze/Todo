@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import * as controller from '../../../src/controllers/toDoItemController';
 import * as ToDoService from '../../../src/services/toDoItemService';
-import { errors } from '../../../src/responses/errorResponses';
+import { errors } from '../../../src/errors/errorResponses';
 import * as validator from '../../../src/validators/common';
 
 // Mock all dependencies
 jest.mock('../../../src/services/toDoItemService');
-jest.mock('../../../src/responses/errorResponses');
+jest.mock('../../../src/errors/errorResponses');
 jest.mock('../../../src/validators/common');
 
 // Type the mocked modules
