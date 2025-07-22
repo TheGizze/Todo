@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as ToDoService from '../services/toDoListService'
-import { errors } from '../responses/errorResponses'
+import { errors } from '../errors/errorResponses'
 import * as validator from '../validators/common'
 
 
