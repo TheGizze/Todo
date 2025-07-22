@@ -135,20 +135,20 @@ describe('Get list by id', () => {
 
 describe('Update list by id', () => {
     it('should update list title when list exists', () => {
-        const updatedList = service.updateListById('list-sample1', 'Updated Title');
+        const updatedList = service.updateList('list-sample1', 'Updated Title');
         expect(updatedList).toBeDefined();
         expect(updatedList?.title).toBe('Updated Title');
         expect(updatedList?.id).toBe('list-sample1');
     });
 
     it('should return undefined when list does not exist', () => {
-        const updatedList = service.updateListById('list-nonexistent', 'Updated Title');
+        const updatedList = service.updateList('list-nonexistent', 'Updated Title');
         expect(updatedList).toBeUndefined();
     });
 
     it('should preserve other properties when updating title', () => {
         const originalList = service.getList('list-sample1');
-        const updatedList = service.updateListById('list-sample1', 'New Title');
+        const updatedList = service.updateList('list-sample1', 'New Title');
         
         expect(updatedList?.id).toBe(originalList?.id);
         expect(updatedList?.items).toEqual(originalList?.items);
@@ -156,7 +156,7 @@ describe('Update list by id', () => {
     });
 
     it('should actually modify the list in the database', () => {
-        service.updateListById('list-sample1', 'Modified Title');
+        service.updateList('list-sample1', 'Modified Title');
         const retrievedList = service.getList('list-sample1');
         expect(retrievedList?.title).toBe('Modified Title');
     });

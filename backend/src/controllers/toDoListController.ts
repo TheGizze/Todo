@@ -41,7 +41,7 @@ export const updateList = (_req: Request, res: Response) => {
     const validationErrors = validator.validateString(_req.body.title);
     if (validationErrors.length > 0) return res.status(400).json(errors.invalidListName(validationErrors));
 
-    const updatedList = ToDoService.updateListById(_req.params.listId, _req.body.title);
+    const updatedList = ToDoService.updateList(_req.params.listId, _req.body.title);
     if (!updatedList) return res.status(404).json(errors.listNotFound(_req.params.listId));
 
     return res.status(200).json(updatedList);

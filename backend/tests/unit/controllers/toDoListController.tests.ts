@@ -225,7 +225,7 @@ describe('ToDoListController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalled();
-            expect(mockedService.updateListById).not.toHaveBeenCalled();
+            expect(mockedService.updateList).not.toHaveBeenCalled();
         });
 
         it('should return 400 with validation errors for invalid title', () => {
@@ -236,7 +236,7 @@ describe('ToDoListController', () => {
 
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalled();
-            expect(mockedService.updateListById).not.toHaveBeenCalled();
+            expect(mockedService.updateList).not.toHaveBeenCalled();
         });
 
         it('should return 200 with updated list when successful', () => {
@@ -246,27 +246,27 @@ describe('ToDoListController', () => {
                 items: []
             };
             
-            mockedService.updateListById.mockReturnValue(mockUpdatedList);
+            mockedService.updateList.mockReturnValue(mockUpdatedList);
 
             const req = createMockReq({ listId: '1' }, { title: 'Updated Title' });
             const res = createMockRes();
 
             controller.updateList(req as Request, res as Response);
 
-            expect(mockedService.updateListById).toHaveBeenCalledWith('1', 'Updated Title');
+            expect(mockedService.updateList).toHaveBeenCalledWith('1', 'Updated Title');
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockUpdatedList);
         });
 
         it('should return 404 when list not found', () => {
-            mockedService.updateListById.mockReturnValue(undefined);
+            mockedService.updateList.mockReturnValue(undefined);
 
             const req = createMockReq({ listId: '999' }, { title: 'New Title' });
             const res = createMockRes();
 
             controller.updateList(req as Request, res as Response);
 
-            expect(mockedService.updateListById).toHaveBeenCalledWith('999', 'New Title');
+            expect(mockedService.updateList).toHaveBeenCalledWith('999', 'New Title');
             expect(res.status).toHaveBeenCalledWith(404);
             expect(res.json).toHaveBeenCalled();
         });
