@@ -3,6 +3,7 @@ import * as controller from '../../../src/controllers/toDoItemController';
 import * as ToDoService from '../../../src/services/toDoItemService';
 import { errors } from '../../../src/errors/errorResponses';
 import * as validator from '../../../src/validators/common';
+import { ListNotFoundError, ItemNotFoundError } from '../../../src/errors/resourceErrors';
 
 // Mock all dependencies
 jest.mock('../../../src/services/toDoItemService');
@@ -94,19 +95,17 @@ describe('ToDoItemController Unit Tests', () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
         });
 
-        it('should return 404 when list does not exist', () => {
-            const mockErrorResponse = { message: 'List not found' };
-            
+        it('should throw ListNotFoundError when list does not exist', () => {
             mockValidator.validateString.mockReturnValue([]);
-            mockToDoService.createListItem.mockReturnValue(undefined);
-            mockErrors.listNotFound.mockReturnValue(mockErrorResponse);
+            mockToDoService.createListItem.mockImplementation(() => {
+                throw new ListNotFoundError('No list Found with id: list-123');
+            });
 
-            controller.createItem(mockReq as Request, mockRes as Response);
+            expect(() => {
+                controller.createItem(mockReq as Request, mockRes as Response);
+            }).toThrow(ListNotFoundError);
 
             expect(mockToDoService.createListItem).toHaveBeenCalledWith('list-123', 'Test item content');
-            expect(mockErrors.listNotFound).toHaveBeenCalledWith('list-123');
-            expect(mockRes.status).toHaveBeenCalledWith(404);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
         });
     });
 
@@ -132,18 +131,16 @@ describe('ToDoItemController Unit Tests', () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockItems);
         });
 
-        it('should return 404 when list does not exist', () => {
-            const mockErrorResponse = { message: 'List not found' };
-            
-            mockToDoService.getListItems.mockReturnValue(undefined);
-            mockErrors.listNotFound.mockReturnValue(mockErrorResponse);
+        it('should throw ListNotFoundError when list does not exist', () => {
+            mockToDoService.getListItems.mockImplementation(() => {
+                throw new ListNotFoundError('No list Found with id: list-123');
+            });
 
-            controller.getListItems(mockReq as Request, mockRes as Response);
+            expect(() => {
+                controller.getListItems(mockReq as Request, mockRes as Response);
+            }).toThrow(ListNotFoundError);
 
             expect(mockToDoService.getListItems).toHaveBeenCalledWith('list-123');
-            expect(mockErrors.listNotFound).toHaveBeenCalledWith('list-123');
-            expect(mockRes.status).toHaveBeenCalledWith(404);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
         });
 
         it('should return empty array when list exists but has no items', () => {
@@ -182,18 +179,16 @@ describe('ToDoItemController Unit Tests', () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockItem);
         });
 
-        it('should return 404 when list or item does not exist', () => {
-            const mockErrorResponse = { message: 'List or item not found' };
-            
-            mockToDoService.getListItem.mockReturnValue(undefined);
-            mockErrors.listOrItemNotFound.mockReturnValue(mockErrorResponse);
+        it('should throw ItemNotFoundError when list or item does not exist', () => {
+            mockToDoService.getListItem.mockImplementation(() => {
+                throw new ItemNotFoundError('No item found with id: item-456');
+            });
 
-            controller.getListItem(mockReq as Request, mockRes as Response);
+            expect(() => {
+                controller.getListItem(mockReq as Request, mockRes as Response);
+            }).toThrow(ItemNotFoundError);
 
             expect(mockToDoService.getListItem).toHaveBeenCalledWith('list-123', 'item-456');
-            expect(mockErrors.listOrItemNotFound).toHaveBeenCalledWith('list-123', 'item-456');
-            expect(mockRes.status).toHaveBeenCalledWith(404);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
         });
     });
 
@@ -261,22 +256,20 @@ describe('ToDoItemController Unit Tests', () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
         });
 
-        it('should return 404 when list or item does not exist', () => {
-            const mockErrorResponse = { message: 'List or item not found' };
-            
-            mockToDoService.updateListItem.mockReturnValue(undefined);
-            mockErrors.listOrItemNotFound.mockReturnValue(mockErrorResponse);
+        it('should throw ItemNotFoundError when list or item does not exist', () => {
+            mockToDoService.updateListItem.mockImplementation(() => {
+                throw new ItemNotFoundError('No item found with id: item-456');
+            });
 
-            controller.updateListItem(mockReq as Request, mockRes as Response);
+            expect(() => {
+                controller.updateListItem(mockReq as Request, mockRes as Response);
+            }).toThrow(ItemNotFoundError);
 
             expect(mockToDoService.updateListItem).toHaveBeenCalledWith(
                 'list-123', 
                 'item-456', 
                 { content: 'Updated content', completed: true }
             );
-            expect(mockErrors.listOrItemNotFound).toHaveBeenCalledWith('list-123', 'item-456');
-            expect(mockRes.status).toHaveBeenCalledWith(404);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
         });
 
         it('should handle partial updates correctly', () => {
@@ -324,18 +317,16 @@ describe('ToDoItemController Unit Tests', () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockDeletedItem);
         });
 
-        it('should return 404 when list or item does not exist', () => {
-            const mockErrorResponse = { message: 'List or item not found' };
-            
-            mockToDoService.deleteItem.mockReturnValue(undefined);
-            mockErrors.listOrItemNotFound.mockReturnValue(mockErrorResponse);
+        it('should throw ItemNotFoundError when list or item does not exist', () => {
+            mockToDoService.deleteItem.mockImplementation(() => {
+                throw new ItemNotFoundError('No item found with id: item-456');
+            });
 
-            controller.deleteListItem(mockReq as Request, mockRes as Response);
+            expect(() => {
+                controller.deleteListItem(mockReq as Request, mockRes as Response);
+            }).toThrow(ItemNotFoundError);
 
             expect(mockToDoService.deleteItem).toHaveBeenCalledWith('list-123', 'item-456');
-            expect(mockErrors.listOrItemNotFound).toHaveBeenCalledWith('list-123', 'item-456');
-            expect(mockRes.status).toHaveBeenCalledWith(404);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
         });
     });
 
@@ -358,14 +349,14 @@ describe('ToDoItemController Unit Tests', () => {
                 body: { content: 'Valid content' }
             });
             
-            const listNotFoundResponse = { message: 'List not found' };
             mockValidator.validateString.mockReturnValue([]);
-            mockToDoService.createListItem.mockReturnValue(undefined);
-            mockErrors.listNotFound.mockReturnValue(listNotFoundResponse);
+            mockToDoService.createListItem.mockImplementation(() => {
+                throw new ListNotFoundError('No list Found with id: nonexistent-list');
+            });
 
-            controller.createItem(mockReq as Request, mockRes as Response);
-
-            expect(mockErrors.listNotFound).toHaveBeenCalledWith('nonexistent-list');
+            expect(() => {
+                controller.createItem(mockReq as Request, mockRes as Response);
+            }).toThrow(ListNotFoundError);
         });
     });
 
