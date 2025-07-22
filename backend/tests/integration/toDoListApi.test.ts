@@ -262,7 +262,7 @@ describe('ToDoList API Integration Tests', () => {
         });
     });
 
-    describe('DELETE /api/list/:id', () => {
+    describe('DELETE /api/list/:listId', () => {
         it('should delete an existing list and return 200', async () => {
             const response = await request(app)
                 .delete('/api/lists/list-sample2')
