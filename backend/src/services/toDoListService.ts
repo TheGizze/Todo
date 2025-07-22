@@ -1,22 +1,29 @@
 import { toDoLists } from "../mockDb";
 import { ToDoList } from "../models/ToDoList";
 import { generateListId } from "../utils/idGenerator";
+import { ListNotFoundError } from "../errors/resourceErrors";
 
 export const getLists = (): ToDoList[] => toDoLists;
 
-export const getList = (listId: string): ToDoList | undefined => toDoLists.find(list => list.id === listId);
+export const getList = (listId: string): ToDoList => {
+    const list = toDoLists.find(list => list.id === listId);
+    if (!list) throw new ListNotFoundError(`No list Found with id: ${listId}`);
 
-export const updateList = (listId: string, title: string): ToDoList | undefined => {
-    const list = getList(listId);
-    if (!list) return undefined;
-    list.title = title;
     return list;
 };
 
-export const deleteList = (listId: string): ToDoList | undefined => {
+export const updateList = (listId: string, title: string): ToDoList => {
     const list = getList(listId);
-    if(!list) return undefined;
+    list.title = title;
+
+    return list;
+};
+
+export const deleteList = (listId: string): ToDoList => {
+    const list = getList(listId);
+
     const index = toDoLists.findIndex(list => list.id === listId);
+    
     return toDoLists.splice(index, 1)[0];
 }
 
