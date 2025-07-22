@@ -4,19 +4,19 @@ import { generateListId } from "../utils/idGenerator";
 
 export const getLists = (): ToDoList[] => toDoLists;
 
-export const getList = (id: string): ToDoList | undefined => toDoLists.find(list => list.id === id);
+export const getList = (listId: string): ToDoList | undefined => toDoLists.find(list => list.id === listId);
 
-export const updateListById = (id: string, title: string): ToDoList | undefined => {
-    const list = getList(id);
+export const updateListById = (listId: string, title: string): ToDoList | undefined => {
+    const list = getList(listId);
     if (!list) return undefined;
     list.title = title;
     return list;
 };
 
-export const deleteList = (id: string): ToDoList | undefined => {
-    const list = getList(id);
+export const deleteList = (listId: string): ToDoList | undefined => {
+    const list = getList(listId);
     if(!list) return undefined;
-    const index = toDoLists.findIndex(l => l.id === id);
+    const index = toDoLists.findIndex(list => list.id === listId);
     return toDoLists.splice(index, 1)[0];
 }
 
