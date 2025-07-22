@@ -9,10 +9,10 @@ export const getAllLists = (_req: Request, res: Response) => {
     return res.status(200).json(lists);
 };
 
-export const getListById = (_req: Request, res: Response) => {
+export const getList = (_req: Request, res: Response) => {
     //create unit tests
-    const list = ToDoService.getList(_req.params.id);
-    if (!list) return res.status(404).json(errors.listNotFound(_req.params.id));
+    const list = ToDoService.getList(_req.params.listId);
+    if (!list) return res.status(404).json(errors.listNotFound(_req.params.listId));
 
     return res.status(200).json(list);
 }
@@ -29,8 +29,8 @@ export const createList = (_req: Request, res: Response) => {
 }
 
 export const deleteList = (_req: Request, res: Response) => {
-    const list = ToDoService.deleteList(_req.params.id);
-    if (!list) return res.status(404).json(errors.listNotFound(_req.params.id));
+    const list = ToDoService.deleteList(_req.params.listId);
+    if (!list) return res.status(404).json(errors.listNotFound(_req.params.listId));
 
     return res.status(200).json(list);
 }
@@ -41,8 +41,8 @@ export const updateList = (_req: Request, res: Response) => {
     const validationErrors = validator.validateString(_req.body.title);
     if (validationErrors.length > 0) return res.status(400).json(errors.invalidListName(validationErrors));
 
-    const updatedList = ToDoService.updateListById(_req.params.id, _req.body.title);
-    if (!updatedList) return res.status(404).json(errors.listNotFound(_req.params.id));
+    const updatedList = ToDoService.updateListById(_req.params.listId, _req.body.title);
+    if (!updatedList) return res.status(404).json(errors.listNotFound(_req.params.listId));
 
     return res.status(200).json(updatedList);
 }
