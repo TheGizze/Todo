@@ -6,10 +6,10 @@ const router = express.Router();
 
 // List routes
 router.get('/lists', ToDoListController.getAllLists);
-router.get('/lists/:id', ToDoListController.getListById);
+router.get('/lists/:listId', ToDoListController.getList);
 router.post('/lists', ToDoListController.createList);
-router.patch('/lists/:id', ToDoListController.updateList);
-router.delete('/lists/:id', ToDoListController.deleteList);
+router.patch('/lists/:listId', ToDoListController.updateList);
+router.delete('/lists/:listId', ToDoListController.deleteList);
 
 // Item routes (nested under lists)
 router.get('/lists/:listId/items', ToDoItemController.getListItems);
