@@ -1,10 +1,10 @@
 
-export class MissingRequiredContent extends Error {
+export class MissingValuesError extends Error {
     status: number;
 
     constructor(message: string){
         super(message);
-        this.name = 'MissingRequiredContent';
+        this.name = 'MissingValuesError';
         this.status = 400
     }
 }
