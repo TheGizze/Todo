@@ -1,10 +1,10 @@
 import { ToDoItem } from "../models/ToDoItem";
 import { getList } from "./toDoListService";
 import { generateItemId } from "../utils/idGenerator";
+import { ItemNotFoundError } from "../errors/resourceErrors";
 
-export const createListItem = (listId: string, listItemContent: string): ToDoItem | undefined => {
+export const createListItem = (listId: string, listItemContent: string): ToDoItem => {
     const items = getListItems(listId);
-    if (!items) return undefined;
 
     const newItem: ToDoItem = {
         id: generateItemId(),
@@ -16,33 +16,33 @@ export const createListItem = (listId: string, listItemContent: string): ToDoIte
     return newItem;
 };
 
-export const getListItems = (listId: string): ToDoItem[] | undefined => getList(listId)?.items;
+export const getListItems = (listId: string): ToDoItem[] => getList(listId).items;
 
-//ToDo: fix ambiguous return value so a proper error that states if either list or list item was not found can be returned
-export const getListItem = (listId: string, itemId: string): ToDoItem | undefined => getListItems(listId)?.find(item => item.id === itemId);
+export const getListItem = (listId: string, itemId: string): ToDoItem => {
+    const item = getListItems(listId).find(item => item.id === itemId);
+    if (!item) throw new ItemNotFoundError(`No item found with id: ${itemId}`);
 
-export const updateListItem = (listId: string, itemId: string, updates: Partial <ToDoItem>): ToDoItem | undefined => {
+    return item;
+};
+
+export const updateListItem = (listId: string, itemId: string, updates: Partial <ToDoItem>): ToDoItem => {
     const result = findItemInList(listId, itemId);
-    if (!result) return undefined;
 
     Object.assign(result.items[result.index], updates)
     return result.items[result.index];
 };
 
 //refactor deleteItem to DeleteListItem for consistensy
-export const deleteItem = (listId: string, itemId: string): ToDoItem | undefined => {
+export const deleteItem = (listId: string, itemId: string): ToDoItem => {
     const result = findItemInList(listId, itemId);
-    if (!result) return undefined;
 
     return result.items.splice(result.index, 1)[0];
 };
 
-const findItemInList = (listId: string, itemId: string): {items: ToDoItem[], index: number}  | undefined => {
+const findItemInList = (listId: string, itemId: string): {items: ToDoItem[], index: number} => {
     const items = getListItems(listId);
-    if (!items) return undefined;
-
     const index = items.findIndex(item => item.id === itemId);
-    if (index === -1) return undefined;
+    if (index === -1) throw new ItemNotFoundError(`No item found with id: ${itemId}`);
 
     return { items, index };
 };
