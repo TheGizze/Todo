@@ -1,23 +1,32 @@
 import * as service from '../../../src/services/toDoListService'
 import { toDoLists } from '../../../src/mockDb'
 import { ToDoList } from '../../../src/models/ToDoList'
+import { ListNotFoundError } from '../../../src/errors/resourceErrors';
+
+// Mock the ID generator to make tests predictable
+jest.mock('../../../src/utils/idGenerator', () => ({
+    generateListId: jest.fn(),
+    generateItemId: jest.fn()
+}));
+
+import * as idGenerator from '../../../src/utils/idGenerator';
 
 // Store original mock data for restoration
 const originalMockData: ToDoList[] = [
     {
-        "id": "1",
+        "id": "list-sample1",
         "title": "Sample To-Do List",
         "items": [
-            {"id": "1", "content": "Sample item 1", "completed": false},
-            {"id": "2", "content": "Sample item 2", "completed": true}
+            {"id": "item-sample1", "content": "Sample item 1", "completed": false},
+            {"id": "item-sample2", "content": "Sample item 2", "completed": true}
         ]
     },
     {
-        "id": "2",
+        "id": "list-sample2",
         "title": "Another To-Do List",
         "items": [
-            {"id": "1", "content": "Another item 1", "completed": false},
-            {"id": "2", "content": "Another item 2", "completed": false}
+            {"id": "item-another1", "content": "Another item 1", "completed": false},
+            {"id": "item-another2", "content": "Another item 2", "completed": false}
         ]
     }
 ];
@@ -27,6 +36,9 @@ beforeEach(() => {
     // Clear the array and restore original data
     toDoLists.length = 0;
     toDoLists.push(...originalMockData);
+    
+    // Reset mocks
+    jest.clearAllMocks();
 });
 
 describe('Get all To Do Lists', () => {
@@ -54,29 +66,29 @@ describe('Get all To Do Lists', () => {
         const lists = service.getLists();
         expect(lists).toEqual([
             {
-                "id":"1",
+                "id":"list-sample1",
                 "title":"Sample To-Do List",
                 "items":[
                     {
-                        "id":"1",
+                        "id":"item-sample1",
                         "content":"Sample item 1",
                         "completed":false
                     },
             {
-                "id":"2",
+                "id":"item-sample2",
                 "content":"Sample item 2",
                 "completed":true}]},
                 {
-                    "id":"2",
+                    "id":"list-sample2",
                     "title":"Another To-Do List",
                     "items":[
                         {
-                            "id":"1",
+                            "id":"item-another1",
                             "content":"Another item 1",
                             "completed":false
                         },
                         {
-                            "id":"2",
+                            "id":"item-another2",
                             "content":"Another item 2",
                             "completed":false
                         }
@@ -87,15 +99,16 @@ describe('Get all To Do Lists', () => {
 
 describe('Get list by id', () => {
     it('Should be an object if exists', () => {
-        const list = service.getList('1');
+        const list = service.getList('list-sample1');
         expect(list).toBeInstanceOf(Object);
     });
-    it('Should be undefined if not found', () => {
-        const list = service.getList('999');
-        expect(list).toBe(undefined);
+    it('Should throw error if not found', () => {
+        expect(() => {
+            service.getList('list-nonexistent');
+        }).toThrow(ListNotFoundError);
     });
     it('should have correct structure', () => {
-        const list = service.getList('1');
+        const list = service.getList('list-sample1');
         expect(list).toEqual(
             expect.objectContaining({
                 id: expect.any(String),
@@ -105,18 +118,18 @@ describe('Get list by id', () => {
         );
     });
     it('should match mockdata', () => {
-        const list = service.getList('1');
+        const list = service.getList('list-sample1');
         expect(list).toEqual({
-                "id":"1",
+                "id":"list-sample1",
                 "title":"Sample To-Do List",
                 "items":[
                     {
-                        "id":"1",
+                        "id":"item-sample1",
                         "content":"Sample item 1",
                         "completed":false
                     },
             {
-                "id":"2",
+                "id":"item-sample2",
                 "content":"Sample item 2",
                 "completed":true}]})
     });
@@ -124,20 +137,21 @@ describe('Get list by id', () => {
 
 describe('Update list by id', () => {
     it('should update list title when list exists', () => {
-        const updatedList = service.updateListById('1', 'Updated Title');
+        const updatedList = service.updateList('list-sample1', 'Updated Title');
         expect(updatedList).toBeDefined();
         expect(updatedList?.title).toBe('Updated Title');
-        expect(updatedList?.id).toBe('1');
+        expect(updatedList?.id).toBe('list-sample1');
     });
 
-    it('should return undefined when list does not exist', () => {
-        const updatedList = service.updateListById('999', 'Updated Title');
-        expect(updatedList).toBeUndefined();
+    it('should throw ListNotFoundError when list does not exist', () => {
+        expect(() => {
+            service.updateList('list-nonexistent', 'Updated Title');
+        }).toThrow(ListNotFoundError);
     });
 
     it('should preserve other properties when updating title', () => {
-        const originalList = service.getList('1');
-        const updatedList = service.updateListById('1', 'New Title');
+        const originalList = service.getList('list-sample1');
+        const updatedList = service.updateList('list-sample1', 'New Title');
         
         expect(updatedList?.id).toBe(originalList?.id);
         expect(updatedList?.items).toEqual(originalList?.items);
@@ -145,42 +159,45 @@ describe('Update list by id', () => {
     });
 
     it('should actually modify the list in the database', () => {
-        service.updateListById('1', 'Modified Title');
-        const retrievedList = service.getList('1');
+        service.updateList('list-sample1', 'Modified Title');
+        const retrievedList = service.getList('list-sample1');
         expect(retrievedList?.title).toBe('Modified Title');
     });
 });
 
 describe('Delete list by id', () => {
     it('should return the deleted list when it exists', () => {
-        const originalList = service.getList('2');
-        const deletedList = service.deleteList('2');
+        const originalList = service.getList('list-sample2');
+        const deletedList = service.deleteList('list-sample2');
         
         expect(deletedList).toEqual(originalList);
-        expect(deletedList?.id).toBe('2');
+        expect(deletedList?.id).toBe('list-sample2');
     });
 
-    it('should return undefined when list does not exist', () => {
-        const deletedList = service.deleteList('999');
-        expect(deletedList).toBeUndefined();
+    it('should throw ListNotFoundError when list does not exist', () => {
+
+        expect(() => {
+            service.deleteList('list-nonexistent')
+        }).toThrow(ListNotFoundError);
     });
 
     it('should remove the list from the database', () => {
         const initialCount = service.getLists().length;
-        service.deleteList('1');
+        service.deleteList('list-sample1');
         
         const newCount = service.getLists().length;
         expect(newCount).toBe(initialCount - 1);
         
-        const deletedList = service.getList('1');
-        expect(deletedList).toBeUndefined();
+        expect(() => {
+            service.getList('list-sample1');
+        }).toThrow(ListNotFoundError);
     });
 
     it('should not affect other lists when deleting', () => {
         const allListsBefore = service.getLists();
-        const otherLists = allListsBefore.filter(list => list.id !== '2');
+        const otherLists = allListsBefore.filter(list => list.id !== 'list-sample2');
         
-        service.deleteList('2');
+        service.deleteList('list-sample2');
         
         const allListsAfter = service.getLists();
         expect(allListsAfter).toEqual(otherLists);
@@ -189,24 +206,40 @@ describe('Delete list by id', () => {
 
 describe('Create new list', () => {
     it('should create a new list with correct title', () => {
+        // Mock the ID generator to return a predictable ID
+        const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
+        mockedGenerateListId.mockReturnValue('list-test123');
+        
         const newList = service.createList('My New List');
         
         expect(newList).toBeDefined();
         expect(newList.title).toBe('My New List');
-        expect(newList.id).toBeDefined();
+        expect(newList.id).toBe('list-test123');
         expect(newList.items).toEqual([]);
+        expect(mockedGenerateListId).toHaveBeenCalledTimes(1);
     });
 
     it('should assign a unique id to the new list', () => {
+        const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
+        mockedGenerateListId
+            .mockReturnValueOnce('list-abc123')
+            .mockReturnValueOnce('list-def456');
+        
         const list1 = service.createList('List 1');
         const list2 = service.createList('List 2');
         
+        expect(list1.id).toBe('list-abc123');
+        expect(list2.id).toBe('list-def456');
         expect(list1.id).not.toBe(list2.id);
         expect(typeof list1.id).toBe('string');
         expect(typeof list2.id).toBe('string');
+        expect(mockedGenerateListId).toHaveBeenCalledTimes(2);
     });
 
     it('should add the new list to the database', () => {
+        const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
+        mockedGenerateListId.mockReturnValue('list-newitem');
+        
         const initialCount = service.getLists().length;
         const newList = service.createList('Test List');
         
@@ -218,20 +251,23 @@ describe('Create new list', () => {
     });
 
     it('should initialize new list with empty items array', () => {
+        const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
+        mockedGenerateListId.mockReturnValue('list-empty123');
+        
         const newList = service.createList('Empty List');
         
         expect(Array.isArray(newList.items)).toBe(true);
         expect(newList.items).toHaveLength(0);
     });
 
-    it('should increment id for each new list', () => {
-        const list1 = service.createList('First');
-        const list2 = service.createList('Second');
+    it('should call generateListId when creating a new list', () => {
+        const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
+        mockedGenerateListId.mockReturnValue('list-generated');
         
-        const id1 = parseInt(list1.id);
-        const id2 = parseInt(list2.id);
+        const newList = service.createList('Test List');
         
-        expect(id2).toBeGreaterThan(id1);
+        expect(mockedGenerateListId).toHaveBeenCalledTimes(1);
+        expect(newList.id).toBe('list-generated');
     });
 });
 
