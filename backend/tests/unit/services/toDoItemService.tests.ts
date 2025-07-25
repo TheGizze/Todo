@@ -3,6 +3,7 @@ import { toDoLists } from '../../../src/mockDb'
 import { ToDoItem } from '../../../src/models/ToDoItem'
 import { ToDoList } from '../../../src/models/ToDoList';
 import * as idGenerator from '../../../src/utils/idGenerator';
+import { ListNotFoundError, ItemNotFoundError } from '../../../src/errors/resourceErrors';
 
 // Mock the ID generator to make tests predictable
 jest.mock('../../../src/utils/idGenerator', () => ({
@@ -59,9 +60,11 @@ describe('ToDoItemService', () => {
  
             
         });
-        it('Should return undefined when list is not found', () => {
-            const newItem = service.createListItem('list-sample99', 'new sample item');
-            expect(newItem).toBe(undefined);
+        it('Should throw ListNotFoundError when list is not found', () => {
+            expect(() => {
+                service.createListItem('list-sample99', 'new sample item')
+            }).toThrow(ListNotFoundError);
+           
         });
         it('Should add new item to a list', () => {
             const initialLength = toDoLists.find(list => list.id === 'list-sample1')?.items.length || 0;
@@ -89,9 +92,11 @@ describe('ToDoItemService', () => {
             expect(items?.[1].id).toBe('item-sample2');
         });
 
-        it('should return undefined for non-existent list', () => {
-            const items = service.getListItems('list-nonexistent');
-            expect(items).toBeUndefined();
+        it('should throw ListNotFoundError for non-existent list', () => {
+
+            expect(() => {
+                service.getListItems('list-nonexistent')
+            }).toThrow(ListNotFoundError);
         });
 
         it('should return empty array for list with no items', () => {
@@ -117,14 +122,16 @@ describe('ToDoItemService', () => {
             expect(item?.completed).toBe(false);
         });
 
-        it('should return undefined for non-existent item in existing list', () => {
-            const item = service.getListItem('list-sample1', 'item-nonexistent');
-            expect(item).toBeUndefined();
+        it('should throw ItemNotFoundError for non-existent item in existing list', () => {
+            expect(() => {
+                service.getListItem('list-sample1', 'item-nonexistent')
+            }).toThrow(ItemNotFoundError);
         });
 
-        it('should return undefined for item in non-existent list', () => {
-            const item = service.getListItem('list-nonexistent', 'item-sample1');
-            expect(item).toBeUndefined();
+        it('should throw ListNotFoundError for item in non-existent list', () => {
+            expect(() => {
+                service.getListItem('list-nonexistent', 'item-sample1')
+            }).toThrow(ListNotFoundError);
         });
     });
 
@@ -152,20 +159,18 @@ describe('ToDoItemService', () => {
             expect(updatedItem?.completed).toBe(true);
         });
 
-        it('should return undefined for non-existent item', () => {
-            const result = service.updateListItem('list-sample1', 'item-nonexistent', {
+        it('should throw ItemNotFoundError for non-existent item', () => {
+            expect(() => {
+                service.updateListItem('list-sample1', 'item-nonexistent', {
                 completed: true
-            });
-
-            expect(result).toBeUndefined();
+            })
+            }).toThrow(ItemNotFoundError);
         });
 
-        it('should return undefined for item in non-existent list', () => {
-            const result = service.updateListItem('list-nonexistent', 'item-sample1', {
+        it('should throw ListNotFoundError for item in non-existent list', () => {
+            expect(() => {service.updateListItem('list-nonexistent', 'item-sample1', {
                 completed: true
-            });
-
-            expect(result).toBeUndefined();
+            })}).toThrow(ListNotFoundError);
         });
 
         it('should actually modify the item in the list', () => {
@@ -194,18 +199,20 @@ describe('ToDoItemService', () => {
             const items = service.getListItems('list-sample1');
             expect(items).toHaveLength(initialLength - 1);
             
-            const deletedItem = service.getListItem('list-sample1', 'item-sample1');
-            expect(deletedItem).toBeUndefined();
+            expect(() => {service.getListItem('list-sample1', 'item-sample1')}).toThrow(ItemNotFoundError);
+            
         });
 
-        it('should return undefined for non-existent item', () => {
-            const result = service.deleteItem('list-sample1', 'item-nonexistent');
-            expect(result).toBeUndefined();
+        it('should throw ItemNotFoundError for non-existent item', () => {
+            expect(() => {
+                service.deleteItem('list-sample1', 'item-nonexistent')
+            }).toThrow(ItemNotFoundError);
         });
 
         it('should return undefined for item in non-existent list', () => {
-            const result = service.deleteItem('list-nonexistent', 'item-sample1');
-            expect(result).toBeUndefined();
+            expect(() => {
+                service.deleteItem('list-nonexistent', 'item-sample1')
+            }).toThrow(ListNotFoundError);
         });
 
         it('should not affect other items when deleting', () => {

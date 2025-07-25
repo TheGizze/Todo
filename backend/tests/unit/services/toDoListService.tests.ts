@@ -1,6 +1,7 @@
 import * as service from '../../../src/services/toDoListService'
 import { toDoLists } from '../../../src/mockDb'
 import { ToDoList } from '../../../src/models/ToDoList'
+import { ListNotFoundError } from '../../../src/errors/resourceErrors';
 
 // Mock the ID generator to make tests predictable
 jest.mock('../../../src/utils/idGenerator', () => ({
@@ -101,9 +102,10 @@ describe('Get list by id', () => {
         const list = service.getList('list-sample1');
         expect(list).toBeInstanceOf(Object);
     });
-    it('Should be undefined if not found', () => {
-        const list = service.getList('list-nonexistent');
-        expect(list).toBe(undefined);
+    it('Should throw error if not found', () => {
+        expect(() => {
+            service.getList('list-nonexistent');
+        }).toThrow(ListNotFoundError);
     });
     it('should have correct structure', () => {
         const list = service.getList('list-sample1');
@@ -141,9 +143,10 @@ describe('Update list by id', () => {
         expect(updatedList?.id).toBe('list-sample1');
     });
 
-    it('should return undefined when list does not exist', () => {
-        const updatedList = service.updateList('list-nonexistent', 'Updated Title');
-        expect(updatedList).toBeUndefined();
+    it('should throw ListNotFoundError when list does not exist', () => {
+        expect(() => {
+            service.updateList('list-nonexistent', 'Updated Title');
+        }).toThrow(ListNotFoundError);
     });
 
     it('should preserve other properties when updating title', () => {
@@ -171,9 +174,11 @@ describe('Delete list by id', () => {
         expect(deletedList?.id).toBe('list-sample2');
     });
 
-    it('should return undefined when list does not exist', () => {
-        const deletedList = service.deleteList('list-nonexistent');
-        expect(deletedList).toBeUndefined();
+    it('should throw ListNotFoundError when list does not exist', () => {
+
+        expect(() => {
+            service.deleteList('list-nonexistent')
+        }).toThrow(ListNotFoundError);
     });
 
     it('should remove the list from the database', () => {
@@ -183,8 +188,9 @@ describe('Delete list by id', () => {
         const newCount = service.getLists().length;
         expect(newCount).toBe(initialCount - 1);
         
-        const deletedList = service.getList('list-sample1');
-        expect(deletedList).toBeUndefined();
+        expect(() => {
+            service.getList('list-sample1');
+        }).toThrow(ListNotFoundError);
     });
 
     it('should not affect other lists when deleting', () => {
