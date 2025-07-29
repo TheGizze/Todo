@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as ToDoService from '../services/toDoListService'
 import { errors } from '../errors/errorResponses'
-import * as validator from '../validators/common'
+import * as validator from '../middleware/validators/common'
 
 export const getAllLists = (_req: Request, res: Response) => {
     const lists = ToDoService.getLists();

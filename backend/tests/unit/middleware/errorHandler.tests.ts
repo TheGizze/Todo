@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { errorHandler } from "../../../src/middleware/errorHandler";
+import { errorHandler } from "../../../src/middleware/errorHandling/errorHandler";
 
 describe("errorHandler middleware", () => {
     let req: Partial<Request>;

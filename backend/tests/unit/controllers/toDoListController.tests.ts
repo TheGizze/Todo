@@ -4,7 +4,7 @@ import * as controller from '../../../src/controllers/toDoListController';
 import * as service from '../../../src/services/toDoListService';
 import express from 'express';
 import { ToDoList } from '../../../src/models/ToDoList';
-import { errorHandler } from '../../../src/middleware/errorHandler';
+import { errorHandler } from '../../../src/middleware/errorHandling/errorHandler';
 import { ListNotFoundError } from '../../../src/errors/resourceErrors';
 
 // Mock the service module
