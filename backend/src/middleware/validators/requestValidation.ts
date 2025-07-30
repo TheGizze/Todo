@@ -1,8 +1,8 @@
-import { ZodSchema } from 'zod';
+import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 import { MissingValuesError } from '../../errors/requestValidationErrors';
 
-export const validateRequest = (schema: ZodSchema) => {
+export const validateRequest = (schema: z.ZodType) => {
     return (_req: Request, res: Response, next: NextFunction) => {
         const result = schema.safeParse(_req.body);
 
