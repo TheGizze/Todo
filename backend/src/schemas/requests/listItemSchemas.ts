@@ -15,7 +15,6 @@ const ItemUpdateSchema = z.object({
 export const requestItemUpdateSchema = ItemUpdateSchema.superRefine((data, ctx) => {
     const optionalFields = ['content', 'completed'] as const;
     const hasAtLeastOne = optionalFields.some(field => field in data);
-    console.info(hasAtLeastOne);
 
   if (!hasAtLeastOne) {
     optionalFields.forEach(field => {

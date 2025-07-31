@@ -16,7 +16,6 @@ export const validateItem = (item: Partial <ToDoItem>, schema: z.ZodObject) =>{
     const result = schema.safeParse(item);
     if(!result.success){
         const fieldErrors = z.flattenError(result.error).fieldErrors;
-        console.info(fieldErrors);
         throw new InvalidItemContentError('invalid item values', fieldErrors);
     }
 }
