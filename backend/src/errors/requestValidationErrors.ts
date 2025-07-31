@@ -10,4 +10,3 @@ export class MissingValuesError extends Error {
         this.status = 400
     }
 }
-// {message: 'request body missing values', missingValues: values})
