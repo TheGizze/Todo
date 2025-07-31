@@ -10,6 +10,8 @@ export const errorHandler = (err: any, _req: Request, res: Response, _next: Next
         }
 
     if(err?.missingValues) error.missingValues = err.missingValues;
+    if(err?.violations) error.violations = err.violations;
+    if(err?.fieldViolations) error.fieldViolations = err.fieldViolations;
 
     res.status(status).json({
         error
