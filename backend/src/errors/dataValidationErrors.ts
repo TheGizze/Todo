@@ -14,8 +14,16 @@ abstract class BaseValidationError extends Error {
 
 
 
-export class InvalidItemContentError extends Error {
-    status: number;
+export class DataValidationError extends BaseValidationError {
+    status = 400;
+    violations: Record<string, string[]>;
+
+    constructor(violations: Record<string, string[]>){
+        super('Data validation failed');
+        this.violations = violations;
+    }
+
+/*     status: number;
     fieldViolations: { [x: string]: string[] | undefined };
 
     constructor(message: string, fieldViolations: { [x: string]: string[] | undefined }){
@@ -23,7 +31,7 @@ export class InvalidItemContentError extends Error {
         this.name = 'InvalidItemContentError';
         this.status = 400;
         this.fieldViolations = fieldViolations;
-    }
+    } */
 }
 
 
