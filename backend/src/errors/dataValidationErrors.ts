@@ -1,3 +1,17 @@
+abstract class BaseValidationError extends Error {
+    abstract status: number;
+    abstract violations: Record <string, string[]>;
+
+    constructor(message: string){
+        super(message);
+        this.name = this.constructor.name;
+        
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, this.constructor);
+        }
+    }
+}
+
 
 export class InvalidItemContentError extends Error {
     status: number;
