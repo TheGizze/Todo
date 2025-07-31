@@ -55,7 +55,7 @@ describe('ToDoItemController Unit Tests', () => {
 
             controller.createItem(mockReq as Request, mockRes as Response);
 
-            expect(mockToDoService.createListItem).toHaveBeenCalledWith('list-123', 'Test item content');
+            expect(mockToDoService.createListItem).toHaveBeenCalledWith('list-123', {content:'Test item content'});
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith(mockNewItem);
         });
@@ -264,7 +264,7 @@ describe('ToDoItemController Unit Tests', () => {
 
             controller.createItem(mockReq as Request, mockRes as Response);
 
-            expect(mockToDoService.createListItem).toHaveBeenCalledWith('specific-list-id', 'Specific content');
+            expect(mockToDoService.createListItem).toHaveBeenCalledWith('specific-list-id', {content:'Specific content'});
 
             // Test updateListItem service call with specific updates
             jest.clearAllMocks();
