@@ -147,7 +147,8 @@ describe('ToDoList API Integration Tests', () => {
                 .send({ title: 'Hi' })
                 .expect(400);
             expect(response.body.error).toHaveProperty('violations');
-            expect(response.body.error.violations).toContain('Must be at least 3 characters long');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Must be at least 3 characters long');
         });
 
         it('should return 400 when title is too long', async () => {
@@ -158,7 +159,8 @@ describe('ToDoList API Integration Tests', () => {
                 .send({ title: longTitle })
                 .expect(400);
             expect(response.body.error).toHaveProperty('violations');
-            expect(response.body.error.violations).toContain("Can't be longer than 50 characters");
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain("Can't be longer than 50 characters");
         });
 
         it('should actually add the list to the database', async () => {
@@ -227,7 +229,8 @@ describe('ToDoList API Integration Tests', () => {
                 .send({ title: 'Hi' })
                 .expect(400);
             expect(response.body.error).toHaveProperty('violations');
-            expect(response.body.error.violations).toContain('Must be at least 3 characters long');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Must be at least 3 characters long');
         });
 
         it('should preserve items when updating title', async () => {
