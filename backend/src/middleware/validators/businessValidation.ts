@@ -8,7 +8,7 @@ export const validateString = (str: string, schema: z.ZodType) => {
     const result = schema.safeParse(str)  
     if(!result.success){
         const issues = result.error.issues.map(issue => issue.message);
-        throw new InvalidListNameError('invalid content in title', issues);
+        throw new InvalidListNameError({'title': issues});
     }
 }
 
