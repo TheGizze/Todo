@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 
-export const requesItemContentSchema = z.object({
+export const requestItemContentSchema = z.object({
     content: z.any().refine((val) => val !== undefined, {
         message: "content"
     })

@@ -18,7 +18,7 @@ router.delete('/lists/:listId', ToDoListController.deleteList);
 // Item routes (nested under lists)
 router.get('/lists/:listId/items', ToDoItemController.getListItems);
 router.get('/lists/:listId/items/:itemId', ToDoItemController.getListItem);
-router.post('/lists/:listId/items', validateRequest(itemSchemas.requesItemContentSchema), ToDoItemController.createItem);
+router.post('/lists/:listId/items', validateRequest(itemSchemas.requestItemContentSchema), ToDoItemController.createItem);
 router.patch('/lists/:listId/items/:itemId', validateUpdateItemRequest(itemSchemas.requestItemUpdateSchema),ToDoItemController.updateListItem);
 router.delete('/lists/:listId/items/:itemId', ToDoItemController.deleteListItem);
 
