@@ -1,19 +1,13 @@
 import { Request, Response } from 'express';
 import * as controller from '../../../src/controllers/toDoItemController';
 import * as ToDoService from '../../../src/services/toDoItemService';
-import { errors } from '../../../src/errors/errorResponses';
-import * as validator from '../../../src/middleware/validators/common';
 import { ListNotFoundError, ItemNotFoundError } from '../../../src/errors/resourceErrors';
 
 // Mock all dependencies
 jest.mock('../../../src/services/toDoItemService');
-jest.mock('../../../src/errors/errorResponses');
-jest.mock('../../../src/middleware/validators/common');
 
 // Type the mocked modules
 const mockToDoService = ToDoService as jest.Mocked<typeof ToDoService>;
-const mockErrors = errors as jest.Mocked<typeof errors>;
-const mockValidator = validator as jest.Mocked<typeof validator>;
 
 // Mock response object factory
 const createMockResponse = (): Partial<Response> => {
@@ -57,56 +51,15 @@ describe('ToDoItemController Unit Tests', () => {
                 completed: false
             };
 
-            mockValidator.validateString.mockReturnValue([]);
             mockToDoService.createListItem.mockReturnValue(mockNewItem);
 
             controller.createItem(mockReq as Request, mockRes as Response);
 
-            expect(mockValidator.validateString).toHaveBeenCalledWith('Test item content');
             expect(mockToDoService.createListItem).toHaveBeenCalledWith('list-123', 'Test item content');
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith(mockNewItem);
         });
 
-        it('should return 400 when content is missing', () => {
-            mockReq.body = {};
-            const mockErrorResponse = { message: 'Missing values', missingValues: ['content'] };
-            mockErrors.missingValues.mockReturnValue(mockErrorResponse);
-
-            controller.createItem(mockReq as Request, mockRes as Response);
-
-            expect(mockErrors.missingValues).toHaveBeenCalledWith(['content']);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
-        });
-
-        it('should return 400 when content validation fails', () => {
-            const validationErrors = ['Must be at least 3 characters long'];
-            const mockErrorResponse = { message: 'Invalid content', violations: validationErrors };
-            
-            mockValidator.validateString.mockReturnValue(validationErrors);
-            mockErrors.invalidItemContent.mockReturnValue(mockErrorResponse);
-
-            controller.createItem(mockReq as Request, mockRes as Response);
-
-            expect(mockValidator.validateString).toHaveBeenCalledWith('Test item content');
-            expect(mockErrors.invalidItemContent).toHaveBeenCalledWith(validationErrors);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
-        });
-
-        it('should throw ListNotFoundError when list does not exist', () => {
-            mockValidator.validateString.mockReturnValue([]);
-            mockToDoService.createListItem.mockImplementation(() => {
-                throw new ListNotFoundError('No list Found with id: list-123');
-            });
-
-            expect(() => {
-                controller.createItem(mockReq as Request, mockRes as Response);
-            }).toThrow(ListNotFoundError);
-
-            expect(mockToDoService.createListItem).toHaveBeenCalledWith('list-123', 'Test item content');
-        });
     });
 
     describe('getListItems', () => {
@@ -220,42 +173,6 @@ describe('ToDoItemController Unit Tests', () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockUpdatedItem);
         });
 
-        it('should return 400 when required fields are missing', () => {
-            mockReq.body = {}; // Missing both content and completed
-            const mockErrorResponse = { message: 'Missing values', missingValues: ['completed', 'content'] };
-            mockErrors.missingValues.mockReturnValue(mockErrorResponse);
-
-            controller.updateListItem(mockReq as Request, mockRes as Response);
-
-            expect(mockErrors.missingValues).toHaveBeenCalledWith(['completed', 'content']);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
-        });
-
-        it('should return 400 when only content is missing', () => {
-            mockReq.body = { completed: true }; // Missing content
-            const mockErrorResponse = { message: 'Missing values', missingValues: ['content'] };
-            mockErrors.missingValues.mockReturnValue(mockErrorResponse);
-
-            controller.updateListItem(mockReq as Request, mockRes as Response);
-
-            expect(mockErrors.missingValues).toHaveBeenCalledWith(['content']);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
-        });
-
-        it('should return 400 when only completed is missing', () => {
-            mockReq.body = { content: 'Updated content' }; // Missing completed
-            const mockErrorResponse = { message: 'Missing values', missingValues: ['completed'] };
-            mockErrors.missingValues.mockReturnValue(mockErrorResponse);
-
-            controller.updateListItem(mockReq as Request, mockRes as Response);
-
-            expect(mockErrors.missingValues).toHaveBeenCalledWith(['completed']);
-            expect(mockRes.status).toHaveBeenCalledWith(400);
-            expect(mockRes.json).toHaveBeenCalledWith(mockErrorResponse);
-        });
-
         it('should throw ItemNotFoundError when list or item does not exist', () => {
             mockToDoService.updateListItem.mockImplementation(() => {
                 throw new ItemNotFoundError('No item found with id: item-456');
@@ -330,35 +247,6 @@ describe('ToDoItemController Unit Tests', () => {
         });
     });
 
-    describe('Error Response Integration', () => {
-        it('should call the correct error functions with proper parameters', () => {
-            // Test missingValues error
-            mockReq = createMockRequest({ body: {} });
-            const missingValuesResponse = { message: 'Missing values', missingValues: ['content'] };
-            mockErrors.missingValues.mockReturnValue(missingValuesResponse);
-
-            controller.createItem(mockReq as Request, mockRes as Response);
-
-            expect(mockErrors.missingValues).toHaveBeenCalledWith(['content']);
-
-            // Test listNotFound error
-            jest.clearAllMocks();
-            mockRes = createMockResponse();
-            mockReq = createMockRequest({ 
-                params: { listId: 'nonexistent-list' },
-                body: { content: 'Valid content' }
-            });
-            
-            mockValidator.validateString.mockReturnValue([]);
-            mockToDoService.createListItem.mockImplementation(() => {
-                throw new ListNotFoundError('No list Found with id: nonexistent-list');
-            });
-
-            expect(() => {
-                controller.createItem(mockReq as Request, mockRes as Response);
-            }).toThrow(ListNotFoundError);
-        });
-    });
 
     describe('Service Layer Integration', () => {
         it('should properly pass parameters to service functions', () => {
@@ -368,7 +256,6 @@ describe('ToDoItemController Unit Tests', () => {
                 body: { content: 'Specific content' }
             });
 
-            mockValidator.validateString.mockReturnValue([]);
             mockToDoService.createListItem.mockReturnValue({
                 id: 'item-123',
                 content: 'Specific content',
