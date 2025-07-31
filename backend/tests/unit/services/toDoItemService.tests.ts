@@ -50,7 +50,7 @@ describe('ToDoItemService', () => {
             const mockedGenerateItemId = idGenerator.generateItemId as jest.MockedFunction<typeof idGenerator.generateItemId>;
             mockedGenerateItemId.mockReturnValue('item-test123');
 
-            const newItem = service.createListItem('list-sample1', 'new sample item');
+            const newItem = service.createListItem('list-sample1', {content: 'new sample item'});
 
             expect(newItem).toBeDefined();
             expect(mockedGenerateItemId).toHaveBeenCalledTimes(1);
@@ -62,7 +62,7 @@ describe('ToDoItemService', () => {
         });
         it('Should throw ListNotFoundError when list is not found', () => {
             expect(() => {
-                service.createListItem('list-sample99', 'new sample item')
+                service.createListItem('list-sample99', {content: 'new sample item'})
             }).toThrow(ListNotFoundError);
            
         });
@@ -72,7 +72,7 @@ describe('ToDoItemService', () => {
             const mockedGenerateItemtId = idGenerator.generateItemId as jest.MockedFunction<typeof idGenerator.generateItemId>;
             mockedGenerateItemtId.mockReturnValue('item-test123');
 
-            const newItem = service.createListItem('list-sample1', 'new sample item');
+            const newItem = service.createListItem('list-sample1', {content: 'new sample item'});
             const list = toDoLists.find(list => list.id === 'list-sample1');
 
             expect(list?.items).toHaveLength(initialLength + 1);
