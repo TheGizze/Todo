@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 
-export const createListSchema = z.object({
+export const requestListTitleSchema = z.object({
     title: z.any().refine((val) => val !== undefined, {
         message: "title"
     })
