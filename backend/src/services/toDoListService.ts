@@ -2,6 +2,8 @@ import { toDoLists } from "../mockDb";
 import { ToDoList } from "../models/ToDoList";
 import { generateListId } from "../utils/idGenerator";
 import { ListNotFoundError } from "../errors/resourceErrors";
+import { validateString } from "../middleware/validators/businessValidation";
+import { listTitleSchema } from "../schemas/business/listsBusinessSchemas";
 
 export const getLists = (): ToDoList[] => toDoLists;
 
@@ -13,6 +15,8 @@ export const getList = (listId: string): ToDoList => {
 };
 
 export const updateList = (listId: string, title: string): ToDoList => {
+    validateString(title, listTitleSchema);
+
     const list = getList(listId);
     list.title = title;
 
@@ -28,6 +32,8 @@ export const deleteList = (listId: string): ToDoList => {
 }
 
 export const createList = (title: string): ToDoList => {
+    validateString(title, listTitleSchema);
+
     const newlist: ToDoList = {
         id: generateListId(),
         title: title,
