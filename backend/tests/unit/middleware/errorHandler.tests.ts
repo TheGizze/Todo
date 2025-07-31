@@ -70,10 +70,11 @@ describe("errorHandler middleware", () => {
         expect(res.json).toHaveBeenCalledWith({
             error: {
                 name: "Error",
-                message: "Validation Error"
+                message: "Validation Error",
+                violations: ["Field is required"],
+                missingValues: ["name"]
             }
         });
-        // Note: Your errorHandler doesn't preserve custom fields like violations and missingValues
     });
 
     it("should handle errors with no message", () => {
