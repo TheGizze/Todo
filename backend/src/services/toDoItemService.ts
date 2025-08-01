@@ -2,13 +2,18 @@ import { ToDoItem } from "../models/ToDoItem";
 import { getList } from "./toDoListService";
 import { generateItemId } from "../utils/idGenerator";
 import { ItemNotFoundError } from "../errors/resourceErrors";
+import { validateData } from "../middleware/validators/businessValidation";
+import { TodoItemSchema, TodoItemCreateSchema } from "../schemas/BusinessSchemas";
+import { DataValidationError } from "../errors/ValidationErrors";
 
-export const createListItem = (listId: string, listItemContent: string): ToDoItem => {
+export const createListItem = (listId: string, item: Partial <ToDoItem>): ToDoItem => {
+    const validatedItem = validateData(item, TodoItemCreateSchema);
+    
     const items = getListItems(listId);
 
     const newItem: ToDoItem = {
         id: generateItemId(),
-        content: listItemContent,
+        content: validatedItem.content,
         completed: false
     }
 
@@ -26,9 +31,10 @@ export const getListItem = (listId: string, itemId: string): ToDoItem => {
 };
 
 export const updateListItem = (listId: string, itemId: string, updates: Partial <ToDoItem>): ToDoItem => {
+    const valitadedUpdates = validateData(updates, TodoItemSchema);
     const result = findItemInList(listId, itemId);
 
-    Object.assign(result.items[result.index], updates)
+    Object.assign(result.items[result.index], valitadedUpdates)
     return result.items[result.index];
 };
 

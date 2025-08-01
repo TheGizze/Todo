@@ -137,7 +137,7 @@ describe('Get list by id', () => {
 
 describe('Update list by id', () => {
     it('should update list title when list exists', () => {
-        const updatedList = service.updateList('list-sample1', 'Updated Title');
+        const updatedList = service.updateList('list-sample1', {title: 'Updated Title'});
         expect(updatedList).toBeDefined();
         expect(updatedList?.title).toBe('Updated Title');
         expect(updatedList?.id).toBe('list-sample1');
@@ -145,13 +145,13 @@ describe('Update list by id', () => {
 
     it('should throw ListNotFoundError when list does not exist', () => {
         expect(() => {
-            service.updateList('list-nonexistent', 'Updated Title');
+            service.updateList('list-nonexistent', {title: 'Updated Title'});
         }).toThrow(ListNotFoundError);
     });
 
     it('should preserve other properties when updating title', () => {
         const originalList = service.getList('list-sample1');
-        const updatedList = service.updateList('list-sample1', 'New Title');
+        const updatedList = service.updateList('list-sample1', {title: 'New Title'});
         
         expect(updatedList?.id).toBe(originalList?.id);
         expect(updatedList?.items).toEqual(originalList?.items);
@@ -159,7 +159,7 @@ describe('Update list by id', () => {
     });
 
     it('should actually modify the list in the database', () => {
-        service.updateList('list-sample1', 'Modified Title');
+        service.updateList('list-sample1', {title: 'Modified Title'});
         const retrievedList = service.getList('list-sample1');
         expect(retrievedList?.title).toBe('Modified Title');
     });
@@ -210,7 +210,7 @@ describe('Create new list', () => {
         const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
         mockedGenerateListId.mockReturnValue('list-test123');
         
-        const newList = service.createList('My New List');
+        const newList = service.createList({title: 'My New List'});
         
         expect(newList).toBeDefined();
         expect(newList.title).toBe('My New List');
@@ -225,8 +225,8 @@ describe('Create new list', () => {
             .mockReturnValueOnce('list-abc123')
             .mockReturnValueOnce('list-def456');
         
-        const list1 = service.createList('List 1');
-        const list2 = service.createList('List 2');
+        const list1 = service.createList({title: 'List 1'});
+        const list2 = service.createList({title: 'List 2'});
         
         expect(list1.id).toBe('list-abc123');
         expect(list2.id).toBe('list-def456');
@@ -241,7 +241,7 @@ describe('Create new list', () => {
         mockedGenerateListId.mockReturnValue('list-newitem');
         
         const initialCount = service.getLists().length;
-        const newList = service.createList('Test List');
+        const newList = service.createList({title: 'Test List'});
         
         const newCount = service.getLists().length;
         expect(newCount).toBe(initialCount + 1);
@@ -254,7 +254,7 @@ describe('Create new list', () => {
         const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
         mockedGenerateListId.mockReturnValue('list-empty123');
         
-        const newList = service.createList('Empty List');
+        const newList = service.createList({title: 'Empty List'});
         
         expect(Array.isArray(newList.items)).toBe(true);
         expect(newList.items).toHaveLength(0);
@@ -264,7 +264,7 @@ describe('Create new list', () => {
         const mockedGenerateListId = idGenerator.generateListId as jest.MockedFunction<typeof idGenerator.generateListId>;
         mockedGenerateListId.mockReturnValue('list-generated');
         
-        const newList = service.createList('Test List');
+        const newList = service.createList({title: 'Test List'});
         
         expect(mockedGenerateListId).toHaveBeenCalledTimes(1);
         expect(newList.id).toBe('list-generated');

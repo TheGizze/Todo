@@ -1,6 +1,6 @@
 import express from 'express';
 import toDoListRoutes from './routes/toDoListRoutes';
-import { errorHandler } from './middleware/errorHandler';
+import { errorHandler } from './middleware/errorHandling/errorHandler';
 
 const app = express();
 const port = process.env.PORT || 3000;
