@@ -1,17 +1,20 @@
 import { z } from "zod";
 
-
-export const TodoItemSchema = z.object({
-    content: z.string()
+const itemContentSchema = z.string()
                 .min(2, "Must be at least 2 characters long")
                 .max(120, "content too long")
                 .trim()                           // Remove whitespace
                 .nonempty("content is required")    // Not empty after trim
                 .regex(/^[a-zA-Z0-9 .,!?:;\-_'\(\)]+$/, "Only letters, numbers, spaces, and basic punctuation allowed")
-                .optional(),
+
+export const TodoItemSchema = z.object({
+    content: itemContentSchema.optional(),
     completed: z.boolean().optional()
 });
 
+export const TodoItemCreateSchema = z.object({
+    content: itemContentSchema
+});
 
 export const ToDoListSchema = z.object({
     id: z.string().optional(),
