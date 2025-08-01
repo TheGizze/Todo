@@ -137,8 +137,9 @@ describe('ToDoList API Integration Tests', () => {
                 .post('/api/lists')
                 .send({})
                 .expect(400);
-            expect(response.body.error).toHaveProperty('missingValues');
-            expect(response.body.error.missingValues).toContain('title');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Required');
         });
 
         it('should return 400 when title is too short', async () => {
@@ -219,8 +220,9 @@ describe('ToDoList API Integration Tests', () => {
                 .patch('/api/lists/list-sample1')
                 .send({})
                 .expect(400);
-            expect(response.body.error).toHaveProperty('missingValues');
-            expect(response.body.error.missingValues).toContain('title');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Required');
         });
 
         it('should return 400 when title is invalid', async () => {
@@ -528,8 +530,9 @@ describe('ToDoItem API Integration Tests', () => {
                 .post('/api/lists/list-sample1/items')
                 .send({})
                 .expect(400);
-            expect(response.body.error).toHaveProperty('missingValues');
-            expect(response.body.error.missingValues).toContain('content');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('content');
+            expect(response.body.error.violations.content).toContain('Required');
         });
 
         it('should return 400 when content is too short', async () => {
@@ -537,8 +540,8 @@ describe('ToDoItem API Integration Tests', () => {
                 .post('/api/lists/list-sample1/items')
                 .send({ content: 'H' })
                 .expect(400);
-            expect(response.body.error).toHaveProperty('fieldViolations');
-            expect(response.body.error.fieldViolations.content).toContain('Must be at least 2 characters long');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations.content).toContain('Must be at least 2 characters long');
         });
 
         it('should return 400 when content is too long', async () => {
@@ -548,7 +551,7 @@ describe('ToDoItem API Integration Tests', () => {
                 .post('/api/lists/list-sample1/items')
                 .send({ content: longContent })
                 .expect(400);
-            expect(response.body.error).toHaveProperty('fieldViolations');
+            expect(response.body.error).toHaveProperty('violations');
         });
 
         it('should return 404 when list does not exist', async () => {
@@ -655,9 +658,9 @@ describe('ToDoItem API Integration Tests', () => {
                 .patch('/api/lists/list-sample1/items/item-sample1')
                 .send({})
                 .expect(400);
-            expect(response.body.error).toHaveProperty('missingValues');
-            expect(response.body.error.missingValues).toContain('completed');
-            expect(response.body.error.missingValues).toContain('content');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('_global');
+            expect(response.body.error.violations._global).toContain("At least one of 'content' or 'completed' is required.");
         });
 
         it('should actually modify the item in the list', async () => {
@@ -693,7 +696,6 @@ describe('ToDoItem API Integration Tests', () => {
 
     describe('DELETE /api/lists/:listId/items/:itemId', () => {
         it('should delete an existing item and return 200', async () => {
-            console.log(toDoLists);
             const response = await request(app)
                 .delete('/api/lists/list-sample1/items/item-sample1')
                 .expect(200);
