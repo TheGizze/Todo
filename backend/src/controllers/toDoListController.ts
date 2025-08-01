@@ -12,7 +12,7 @@ export const getList = (req: Request, res: Response) => {
 }
 
 export const createList = (req: Request, res: Response) => {
-    const list = ToDoService.createList(req.body.title);
+    const list = ToDoService.createList(req.body);
     return res.status(200).json(list);
 }
 
@@ -22,7 +22,7 @@ export const deleteList = (req: Request, res: Response) => {
 }
 
 export const updateList = (req: Request, res: Response) => {
-    const updatedList = ToDoService.updateList(req.params.listId, req.body.title);
+    const updatedList = ToDoService.updateList(req.params.listId, req.body);
     return res.status(200).json(updatedList);
 }
 
