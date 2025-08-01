@@ -1,29 +1,19 @@
 import { z } from 'zod';
 import { Request, Response, NextFunction } from 'express';
-import { MissingValuesError } from '../../errors/requestValidationErrors';
+import { RequestValidationError } from '../../errors/ValidationErrors';
+import { parseFieldErrors } from '../errorHandling/errorParser';
 
 export const validateRequest = (schema: z.ZodType) => {
     return (req: Request, _res: Response, next: NextFunction) => {
         const result = schema.safeParse(req.body);
         if(!result.success){
-            const issues = result.error.issues.map(issue => issue.message);
-
-            throw new MissingValuesError('request body missing values', issues);
+            console.info(result.error);
+            const fieldErrors  = z.flattenError(result.error).fieldErrors;
+            const cleanedFieldErrors = parseFieldErrors(fieldErrors);
+            throw new RequestValidationError(cleanedFieldErrors);
         }
         req.body = result.data;
         
-        next();
-    };
-};
-
-export const validateUpdateItemRequest = (schema: z.ZodType) => {
-    return (req: Request, _res: Response, next: NextFunction) => {
-        const result = schema.safeParse(req.body);
-        if(!result.success){
-            const issues = result.error.issues.map(issue => issue.message);
-            throw new MissingValuesError('At least One field required', issues);
-        }
-        req.body = result.data;
         next();
     };
 };
