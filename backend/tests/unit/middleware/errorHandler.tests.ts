@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { errorHandler } from "../../../src/middleware/errorHandler";
+import { errorHandler } from "../../../src/middleware/errorHandling/errorHandler";
 
 describe("errorHandler middleware", () => {
     let req: Partial<Request>;
@@ -61,19 +61,19 @@ describe("errorHandler middleware", () => {
         const err = Object.assign(new Error("Validation Error"), {
             status: 422,
             violations: ["Field is required"],
-            missingValues: ["name"]
         });
 
         errorHandler(err, req as Request, res as Response, next);
 
+        console.log(res.json);
         expect(res.status).toHaveBeenCalledWith(422);
         expect(res.json).toHaveBeenCalledWith({
             error: {
                 name: "Error",
-                message: "Validation Error"
+                message: "Validation Error",
+                violations: ["Field is required"],
             }
         });
-        // Note: Your errorHandler doesn't preserve custom fields like violations and missingValues
     });
 
     it("should handle errors with no message", () => {

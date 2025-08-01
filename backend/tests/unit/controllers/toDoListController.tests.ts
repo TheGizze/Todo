@@ -4,7 +4,7 @@ import * as controller from '../../../src/controllers/toDoListController';
 import * as service from '../../../src/services/toDoListService';
 import express from 'express';
 import { ToDoList } from '../../../src/models/ToDoList';
-import { errorHandler } from '../../../src/middleware/errorHandler';
+import { errorHandler } from '../../../src/middleware/errorHandling/errorHandler';
 import { ListNotFoundError } from '../../../src/errors/resourceErrors';
 
 // Mock the service module
@@ -131,38 +131,6 @@ describe('ToDoListController', () => {
     });
 
     describe('createList', () => {
-        it('should return 400 when title is missing', () => {
-            const req = createMockReq({}, {});
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalled();
-            expect(mockedService.createList).not.toHaveBeenCalled();
-        });
-
-        it('should return 400 when title is undefined', () => {
-            const req = createMockReq({}, { title: undefined });
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalled();
-            expect(mockedService.createList).not.toHaveBeenCalled();
-        });
-
-        it('should return 400 with validation errors for invalid title', () => {
-            const req = createMockReq({}, { title: 'Hi' }); // Too short
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalled();
-            expect(mockedService.createList).not.toHaveBeenCalled();
-        });
 
         it('should return 200 with created list when title is valid', () => {
             const mockCreatedList: ToDoList = {
@@ -178,19 +146,11 @@ describe('ToDoListController', () => {
 
             controller.createList(req as Request, res as Response);
 
-            expect(mockedService.createList).toHaveBeenCalledWith('Valid List Name');
+            expect(mockedService.createList).toHaveBeenCalledWith({title: 'Valid List Name'});
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockCreatedList);
         });
 
-        it('should handle empty string title appropriately', () => {
-            const req = createMockReq({}, { title: '' });
-            const res = createMockRes();
-
-            controller.createList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-        });
     });
 
     describe('deleteList', () => {
@@ -227,28 +187,7 @@ describe('ToDoListController', () => {
     });
 
     describe('updateList', () => {
-        it('should return 400 when title is missing', () => {
-            const req = createMockReq({ listId: '1' }, {});
-            const res = createMockRes();
-
-            controller.updateList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalled();
-            expect(mockedService.updateList).not.toHaveBeenCalled();
-        });
-
-        it('should return 400 with validation errors for invalid title', () => {
-            const req = createMockReq({ listId: '1' }, { title: 'Hi' }); // Too short
-            const res = createMockRes();
-
-            controller.updateList(req as Request, res as Response);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json).toHaveBeenCalled();
-            expect(mockedService.updateList).not.toHaveBeenCalled();
-        });
-
+       
         it('should return 200 with updated list when successful', () => {
             const mockUpdatedList: ToDoList = {
                 id: "1",
@@ -263,7 +202,7 @@ describe('ToDoListController', () => {
 
             controller.updateList(req as Request, res as Response);
 
-            expect(mockedService.updateList).toHaveBeenCalledWith('1', 'Updated Title');
+            expect(mockedService.updateList).toHaveBeenCalledWith('1', {title: 'Updated Title'});
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockUpdatedList);
         });

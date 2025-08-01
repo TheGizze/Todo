@@ -137,8 +137,9 @@ describe('ToDoList API Integration Tests', () => {
                 .post('/api/lists')
                 .send({})
                 .expect(400);
-            expect(response.body).toHaveProperty('missingValues');
-            expect(response.body.missingValues).toContain('title');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Required');
         });
 
         it('should return 400 when title is too short', async () => {
@@ -146,8 +147,9 @@ describe('ToDoList API Integration Tests', () => {
                 .post('/api/lists')
                 .send({ title: 'Hi' })
                 .expect(400);
-            expect(response.body).toHaveProperty('violations');
-            expect(response.body.violations).toContain('Must be at least 3 characters long');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Must be at least 3 characters long');
         });
 
         it('should return 400 when title is too long', async () => {
@@ -157,8 +159,9 @@ describe('ToDoList API Integration Tests', () => {
                 .post('/api/lists')
                 .send({ title: longTitle })
                 .expect(400);
-            expect(response.body).toHaveProperty('violations');
-            expect(response.body.violations).toContain("Can't be longer than 50 characters");
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain("Can't be longer than 50 characters");
         });
 
         it('should actually add the list to the database', async () => {
@@ -217,8 +220,9 @@ describe('ToDoList API Integration Tests', () => {
                 .patch('/api/lists/list-sample1')
                 .send({})
                 .expect(400);
-            expect(response.body).toHaveProperty('missingValues');
-            expect(response.body.missingValues).toContain('title');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Required');
         });
 
         it('should return 400 when title is invalid', async () => {
@@ -226,8 +230,9 @@ describe('ToDoList API Integration Tests', () => {
                 .patch('/api/lists/list-sample1')
                 .send({ title: 'Hi' })
                 .expect(400);
-            expect(response.body).toHaveProperty('violations');
-            expect(response.body.violations).toContain('Must be at least 3 characters long');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('title');
+            expect(response.body.error.violations.title).toContain('Must be at least 3 characters long');
         });
 
         it('should preserve items when updating title', async () => {
@@ -525,17 +530,18 @@ describe('ToDoItem API Integration Tests', () => {
                 .post('/api/lists/list-sample1/items')
                 .send({})
                 .expect(400);
-            expect(response.body).toHaveProperty('missingValues');
-            expect(response.body.missingValues).toContain('content');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('content');
+            expect(response.body.error.violations.content).toContain('Required');
         });
 
         it('should return 400 when content is too short', async () => {
             const response = await request(app)
                 .post('/api/lists/list-sample1/items')
-                .send({ content: 'Hi' })
+                .send({ content: 'H' })
                 .expect(400);
-            expect(response.body).toHaveProperty('violations');
-            expect(response.body.violations).toContain('Must be at least 3 characters long');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations.content).toContain('Must be at least 2 characters long');
         });
 
         it('should return 400 when content is too long', async () => {
@@ -545,7 +551,7 @@ describe('ToDoItem API Integration Tests', () => {
                 .post('/api/lists/list-sample1/items')
                 .send({ content: longContent })
                 .expect(400);
-            expect(response.body).toHaveProperty('violations');
+            expect(response.body.error).toHaveProperty('violations');
         });
 
         it('should return 404 when list does not exist', async () => {
@@ -629,22 +635,22 @@ describe('ToDoItem API Integration Tests', () => {
             expect(response.body.error.message).toContain('No item found with id: item-nonexistent');
         });
 
-        it('should return 400 when content is missing', async () => {
+        it('should return 200 when only completed is provided', async () => {
             const response = await request(app)
                 .patch('/api/lists/list-sample1/items/item-sample1')
                 .send({ completed: true })
-                .expect(400);
-            expect(response.body).toHaveProperty('missingValues');
-            expect(response.body.missingValues).toContain('content');
+                .expect(200);
+            expect(response.body).toHaveProperty('completed');
+            expect(response.body.completed).toBeTruthy();
         });
 
-        it('should return 400 when completed is missing', async () => {
+        it('should return 200 when only content is provided', async () => {
             const response = await request(app)
                 .patch('/api/lists/list-sample1/items/item-sample1')
                 .send({ content: 'Updated content' })
-                .expect(400);
-            expect(response.body).toHaveProperty('missingValues');
-            expect(response.body.missingValues).toContain('completed');
+                .expect(200);
+            expect(response.body).toHaveProperty('content');
+            expect(response.body.content).toContain('Updated content');
         });
 
         it('should return 400 when both fields are missing', async () => {
@@ -652,9 +658,9 @@ describe('ToDoItem API Integration Tests', () => {
                 .patch('/api/lists/list-sample1/items/item-sample1')
                 .send({})
                 .expect(400);
-            expect(response.body).toHaveProperty('missingValues');
-            expect(response.body.missingValues).toContain('completed');
-            expect(response.body.missingValues).toContain('content');
+            expect(response.body.error).toHaveProperty('violations');
+            expect(response.body.error.violations).toHaveProperty('_global');
+            expect(response.body.error.violations._global).toContain("At least one of 'content' or 'completed' is required.");
         });
 
         it('should actually modify the item in the list', async () => {
@@ -690,7 +696,6 @@ describe('ToDoItem API Integration Tests', () => {
 
     describe('DELETE /api/lists/:listId/items/:itemId', () => {
         it('should delete an existing item and return 200', async () => {
-            console.log(toDoLists);
             const response = await request(app)
                 .delete('/api/lists/list-sample1/items/item-sample1')
                 .expect(200);
@@ -786,13 +791,11 @@ describe('ToDoItem API Integration Tests', () => {
             expect(response.headers['content-type']).toMatch(/application\/json/);
         });
 
-        it.skip('should handle invalid boolean values for completed', async () => {
+        it('should handle invalid boolean values for completed', async () => {
             const response = await request(app)
                 .patch('/api/lists/list-sample1/items/item-sample1')
                 .send({ content: 'Valid content', completed: 'not-a-boolean' })
                 .expect(400); 
-
-            // Note: add proper boolean validation this will fail until then
         });
     });
 
