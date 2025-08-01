@@ -146,7 +146,7 @@ describe('ToDoListController', () => {
 
             controller.createList(req as Request, res as Response);
 
-            expect(mockedService.createList).toHaveBeenCalledWith('Valid List Name');
+            expect(mockedService.createList).toHaveBeenCalledWith({title: 'Valid List Name'});
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockCreatedList);
         });
@@ -202,7 +202,7 @@ describe('ToDoListController', () => {
 
             controller.updateList(req as Request, res as Response);
 
-            expect(mockedService.updateList).toHaveBeenCalledWith('1', 'Updated Title');
+            expect(mockedService.updateList).toHaveBeenCalledWith('1', {title: 'Updated Title'});
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockUpdatedList);
         });
