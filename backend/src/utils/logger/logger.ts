@@ -14,7 +14,7 @@ const createLogger = () => {
         options: {
             colorize: true,
             ignore: 'pid,hostname',
-            translateTime: 'yyyy-mm-dd HH:MM:ss'
+            translateTime: 'dd-mm-yyyy HH:MM:ss'
             }
         } : undefined,
     
