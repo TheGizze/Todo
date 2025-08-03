@@ -27,16 +27,7 @@ export const createListItem = (listId: string, item: Partial <ToDoItem>): ToDoIt
     return newItem;
 };
 
-export const getListItems = (listId: string): ToDoItem[] => {
-    const listItems = getList(listId).items;
-
-    logger.info({
-        operation: 'getListItems',
-        items: listItems
-    },'Successfully fetched list');
-
-    return listItems
-}
+export const getListItems = (listId: string): ToDoItem[] => getList(listId).items;
 
 export const getListItem = (listId: string, itemId: string): ToDoItem => {
     const item = getListItems(listId).find(item => item.id === itemId);
