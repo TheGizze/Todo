@@ -183,7 +183,7 @@ describe('ToDoItemService', () => {
 
     describe('Delete item by id', () => {
         it('should delete existing item and return it', () => {
-            const deletedItem = service.deleteItem('list-sample1', 'item-sample1');
+            const deletedItem = service.deleteListItem('list-sample1', 'item-sample1');
 
             expect(deletedItem).toBeDefined();
             expect(deletedItem?.id).toBe('item-sample1');
@@ -194,7 +194,7 @@ describe('ToDoItemService', () => {
         it('should remove item from the list', () => {
             const initialLength = service.getListItems('list-sample1')?.length || 0;
             
-            service.deleteItem('list-sample1', 'item-sample1');
+            service.deleteListItem('list-sample1', 'item-sample1');
             
             const items = service.getListItems('list-sample1');
             expect(items).toHaveLength(initialLength - 1);
@@ -205,13 +205,13 @@ describe('ToDoItemService', () => {
 
         it('should throw ItemNotFoundError for non-existent item', () => {
             expect(() => {
-                service.deleteItem('list-sample1', 'item-nonexistent')
+                service.deleteListItem('list-sample1', 'item-nonexistent')
             }).toThrow(ItemNotFoundError);
         });
 
         it('should return undefined for item in non-existent list', () => {
             expect(() => {
-                service.deleteItem('list-nonexistent', 'item-sample1')
+                service.deleteListItem('list-nonexistent', 'item-sample1')
             }).toThrow(ListNotFoundError);
         });
 
@@ -219,7 +219,7 @@ describe('ToDoItemService', () => {
             const allItemsBefore = service.getListItems('list-sample1');
             const otherItems = allItemsBefore?.filter(item => item.id !== 'item-sample1');
             
-            service.deleteItem('list-sample1', 'item-sample1');
+            service.deleteListItem('list-sample1', 'item-sample1');
             
             const allItemsAfter = service.getListItems('list-sample1');
             expect(allItemsAfter).toEqual(otherItems);
