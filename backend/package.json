@@ -7,11 +7,11 @@
     "dev": "ts-node src/index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "test": "jest",
-    "test:unit": "jest tests/unit",
-    "test:integration": "jest tests/integration",
-    "test:watch": "jest --watch tests/unit",
-    "test:coverage": "jest --coverage"
+    "test": "NODE_ENV=TEST jest",
+    "test:unit": "NODE_ENV=TEST jest tests/unit",
+    "test:integration": "NODE_ENV=TEST jest tests/integration",
+    "test:watch": "NODE_ENV=TEST jest --watch tests/unit",
+    "test:coverage": "NODE_ENV=TEST jest --coverage"
   },
   "keywords": [],
   "author": "",
