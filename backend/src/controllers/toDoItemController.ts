@@ -23,6 +23,6 @@ export const updateListItem = (req: Request, res: Response) => {
 };
 
 export const deleteListItem = (req: Request, res: Response) => {
-    const deletedItem = ToDoService.deleteItem(req.params.listId, req.params.itemId);
+    const deletedItem = ToDoService.deleteListItem(req.params.listId, req.params.itemId);
     return res.status(200).json(deletedItem);
 };

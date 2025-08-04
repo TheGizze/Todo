@@ -4,7 +4,7 @@ import { generateItemId } from "../utils/idGenerator";
 import { ItemNotFoundError } from "../errors/resourceErrors";
 import { validateData } from "../middleware/validators/businessValidation";
 import { TodoItemSchema, TodoItemCreateSchema } from "../schemas/BusinessSchemas";
-import { DataValidationError } from "../errors/ValidationErrors";
+import { logger } from "../utils/logger/logger";
 
 export const createListItem = (listId: string, item: Partial <ToDoItem>): ToDoItem => {
     const validatedItem = validateData(item, TodoItemCreateSchema);
@@ -16,6 +16,12 @@ export const createListItem = (listId: string, item: Partial <ToDoItem>): ToDoIt
         content: validatedItem.content,
         completed: false
     }
+    
+    logger.info({
+        operation: 'createListItem',
+        list: listId,
+        item: newItem
+    }, 'Item successfully added to the list');
 
     items.push(newItem);
     return newItem;
@@ -27,20 +33,39 @@ export const getListItem = (listId: string, itemId: string): ToDoItem => {
     const item = getListItems(listId).find(item => item.id === itemId);
     if (!item) throw new ItemNotFoundError(`No item found with id: ${itemId}`);
 
+    logger.debug({
+        operation: 'getListItems',
+        item: item
+    },'Successfully fetched item from list');
+
     return item;
 };
 
 export const updateListItem = (listId: string, itemId: string, updates: Partial <ToDoItem>): ToDoItem => {
     const valitadedUpdates = validateData(updates, TodoItemSchema);
     const result = findItemInList(listId, itemId);
+    
+    Object.assign(result.items[result.index], valitadedUpdates);
 
-    Object.assign(result.items[result.index], valitadedUpdates)
+    logger.debug({
+        operation: 'updateListItem',
+        listId,
+        itemId,
+        updates,
+        newItem: result.items[result.index]
+
+    },'Successfully updated list item');
+
     return result.items[result.index];
 };
 
-//refactor deleteItem to DeleteListItem for consistensy
-export const deleteItem = (listId: string, itemId: string): ToDoItem => {
+export const deleteListItem = (listId: string, itemId: string): ToDoItem => {
     const result = findItemInList(listId, itemId);
+    
+    logger.info({
+        operation: 'deleteListItem',
+        deletedItem: result.items[result.index]
+    }, 'Successfully deleted item from the list');
 
     return result.items.splice(result.index, 1)[0];
 };
