@@ -59,8 +59,7 @@ export const updateListItem = (listId: string, itemId: string, updates: Partial 
     return result.items[result.index];
 };
 
-//refactor deleteItem to DeleteListItem for consistensy
-export const deleteItem = (listId: string, itemId: string): ToDoItem => {
+export const deleteListItem = (listId: string, itemId: string): ToDoItem => {
     const result = findItemInList(listId, itemId);
     
     logger.info({
