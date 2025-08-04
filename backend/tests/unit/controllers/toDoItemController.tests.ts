@@ -225,17 +225,17 @@ describe('ToDoItemController Unit Tests', () => {
                 completed: false
             };
 
-            mockToDoService.deleteItem.mockReturnValue(mockDeletedItem);
+            mockToDoService.deleteListItem.mockReturnValue(mockDeletedItem);
 
             controller.deleteListItem(mockReq as Request, mockRes as Response);
 
-            expect(mockToDoService.deleteItem).toHaveBeenCalledWith('list-123', 'item-456');
+            expect(mockToDoService.deleteListItem).toHaveBeenCalledWith('list-123', 'item-456');
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith(mockDeletedItem);
         });
 
         it('should throw ItemNotFoundError when list or item does not exist', () => {
-            mockToDoService.deleteItem.mockImplementation(() => {
+            mockToDoService.deleteListItem.mockImplementation(() => {
                 throw new ItemNotFoundError('No item found with id: item-456');
             });
 
@@ -243,7 +243,7 @@ describe('ToDoItemController Unit Tests', () => {
                 controller.deleteListItem(mockReq as Request, mockRes as Response);
             }).toThrow(ItemNotFoundError);
 
-            expect(mockToDoService.deleteItem).toHaveBeenCalledWith('list-123', 'item-456');
+            expect(mockToDoService.deleteListItem).toHaveBeenCalledWith('list-123', 'item-456');
         });
     });
 
