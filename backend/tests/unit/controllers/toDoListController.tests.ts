@@ -36,7 +36,7 @@ describe('ToDoListController', () => {
     });
 
     describe('getAllLists', () => {
-        it('should return 200 with all lists', () => {
+        it('should return 200 with all lists', async () => {
             const mockLists: ToDoList[] = [
                 {
                     id: "1",
@@ -53,39 +53,39 @@ describe('ToDoListController', () => {
                 }
             ];
             
-            mockedService.getLists.mockReturnValue(mockLists);
+            mockedService.getLists.mockResolvedValue(mockLists);
 
             const req = createMockReq();
             const res = createMockRes();
 
-            controller.getAllLists(req as Request, res as Response);
+            await controller.getAllLists(req as Request, res as Response);
 
             expect(mockedService.getLists).toHaveBeenCalledTimes(1);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockLists);
         });
 
-        it('should return 200 with empty array when no lists exist', () => {
-            mockedService.getLists.mockReturnValue([]);
+        it('should return 200 with empty array when no lists exist', async () => {
+            mockedService.getLists.mockResolvedValue([]);
 
             const req = createMockReq();
             const res = createMockRes();
 
-            controller.getAllLists(req as Request, res as Response);
+            await controller.getAllLists(req as Request, res as Response);
 
             expect(mockedService.getLists).toHaveBeenCalledTimes(1);
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith([]);
         });
 
-        it('should call service.getLists exactly once', () => {
+        it('should call service.getLists exactly once', async () => {
             const mockLists: ToDoList[] = [];
-            mockedService.getLists.mockReturnValue(mockLists);
+            mockedService.getLists.mockResolvedValue(mockLists);
 
             const req = createMockReq();
             const res = createMockRes();
 
-            controller.getAllLists(req as Request, res as Response);
+            await controller.getAllLists(req as Request, res as Response);
 
             expect(mockedService.getLists).toHaveBeenCalledTimes(1);
             expect(mockedService.getLists).toHaveBeenCalledWith();
@@ -93,7 +93,7 @@ describe('ToDoListController', () => {
     });
 
     describe('getList', () => {
-        it('should return 200 with list when found', () => {
+        it('should return 200 with list when found', async () => {
             const mockList: ToDoList = {
                 id: "1",
                 title: "Sample To-Do List",
@@ -103,12 +103,12 @@ describe('ToDoListController', () => {
                 ]
             };
             
-            mockedService.getList.mockReturnValue(mockList);
+            mockedService.getList.mockResolvedValue(mockList);
 
             const req = createMockReq({ listId: '1' });
             const res = createMockRes();
 
-            controller.getList(req as Request, res as Response);
+            await controller.getList(req as Request, res as Response);
 
             expect(mockedService.getList).toHaveBeenCalledWith('1');
             expect(res.status).toHaveBeenCalledWith(200);
@@ -118,33 +118,31 @@ describe('ToDoListController', () => {
         it('should return 404 when list is not found', async () => {
             const id = 'list-nonexistent';
             
-            mockedService.getList.mockImplementation(() => {
-                throw new ListNotFoundError(id);
-            });
+            mockedService.getList.mockRejectedValue(new ListNotFoundError(id));
 
             const req = createMockReq({ listId: id });
             const res = createMockRes();
 
-            expect(() => controller.getList(req as Request, res as Response))
-                .toThrow(ListNotFoundError);
+            await expect(() => controller.getList(req as Request, res as Response))
+                .rejects.toThrow(ListNotFoundError);
         });
     });
 
     describe('createList', () => {
 
-        it('should return 200 with created list when title is valid', () => {
+        it('should return 200 with created list when title is valid', async () => {
             const mockCreatedList: ToDoList = {
                 id: "3",
                 title: "Valid List Name",
                 items: []
             };
             
-            mockedService.createList.mockReturnValue(mockCreatedList);
+            mockedService.createList.mockResolvedValue(mockCreatedList);
 
             const req = createMockReq({}, { title: 'Valid List Name' });
             const res = createMockRes();
 
-            controller.createList(req as Request, res as Response);
+            await controller.createList(req as Request, res as Response);
 
             expect(mockedService.createList).toHaveBeenCalledWith({title: 'Valid List Name'});
             expect(res.status).toHaveBeenCalledWith(200);
@@ -154,69 +152,65 @@ describe('ToDoListController', () => {
     });
 
     describe('deleteList', () => {
-        it('should return 200 with deleted list when found', () => {
+        it('should return 200 with deleted list when found', async () => {
             const mockList: ToDoList = {
                 id: "1",
                 title: "List to Delete",
                 items: []
             };
             
-            mockedService.deleteList.mockReturnValue(mockList);
+            mockedService.deleteList.mockResolvedValue(mockList);
 
             const req = createMockReq({ listId: '1' });
             const res = createMockRes();
 
-            controller.deleteList(req as Request, res as Response);
+            await controller.deleteList(req as Request, res as Response);
 
             expect(mockedService.deleteList).toHaveBeenCalledWith('1');
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockList);
         });
 
-        it('should return 404 when list not found', () => {
-            mockedService.deleteList.mockImplementation(() => {
-                throw new ListNotFoundError('999');
-            });
+        it('should return 404 when list not found', async () => {
+            mockedService.deleteList.mockRejectedValue(new ListNotFoundError('999'));
 
             const req = createMockReq({ listId: '999' });
             const res = createMockRes();
 
-            expect(() => controller.deleteList(req as Request, res as Response))
-                .toThrow(ListNotFoundError);
+            await expect(() => controller.deleteList(req as Request, res as Response))
+                .rejects.toThrow(ListNotFoundError);
         });
     });
 
     describe('updateList', () => {
        
-        it('should return 200 with updated list when successful', () => {
+        it('should return 200 with updated list when successful', async () => {
             const mockUpdatedList: ToDoList = {
                 id: "1",
                 title: "Updated Title",
                 items: []
             };
             
-            mockedService.updateList.mockReturnValue(mockUpdatedList);
+            mockedService.updateList.mockResolvedValue(mockUpdatedList);
 
             const req = createMockReq({ listId: '1' }, { title: 'Updated Title' });
             const res = createMockRes();
 
-            controller.updateList(req as Request, res as Response);
+            await controller.updateList(req as Request, res as Response);
 
             expect(mockedService.updateList).toHaveBeenCalledWith('1', {title: 'Updated Title'});
             expect(res.status).toHaveBeenCalledWith(200);
             expect(res.json).toHaveBeenCalledWith(mockUpdatedList);
         });
 
-        it('should return 404 when list not found', () => {
-            mockedService.updateList.mockImplementation(() => {
-                throw new ListNotFoundError('999');
-            });
+        it('should return 404 when list not found', async () => {
+            mockedService.updateList.mockRejectedValue(new ListNotFoundError('999'));
 
             const req = createMockReq({ listId: '999' }, { title: 'New Title' });
             const res = createMockRes();
 
-            expect(() => controller.updateList(req as Request, res as Response))
-                .toThrow(ListNotFoundError);
+            await expect(() => controller.updateList(req as Request, res as Response))
+                .rejects.toThrow(ListNotFoundError);
         });
     });
 });

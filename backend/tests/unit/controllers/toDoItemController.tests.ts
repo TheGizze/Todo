@@ -44,16 +44,16 @@ describe('ToDoItemController Unit Tests', () => {
             });
         });
 
-        it('should create a new item successfully', () => {
+        it('should create a new item successfully', async () => {
             const mockNewItem = {
                 id: 'item-123',
                 content: 'Test item content',
                 completed: false
             };
 
-            mockToDoService.createListItem.mockReturnValue(mockNewItem);
+            mockToDoService.createListItem.mockResolvedValue(mockNewItem);
 
-            controller.createItem(mockReq as Request, mockRes as Response);
+            await controller.createItem(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.createListItem).toHaveBeenCalledWith('list-123', {content:'Test item content'});
             expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -69,39 +69,37 @@ describe('ToDoItemController Unit Tests', () => {
             });
         });
 
-        it('should return all items for a list successfully', () => {
+        it('should return all items for a list successfully', async () => {
             const mockItems = [
                 { id: 'item-1', content: 'Item 1', completed: false },
                 { id: 'item-2', content: 'Item 2', completed: true }
             ];
 
-            mockToDoService.getListItems.mockReturnValue(mockItems);
+            mockToDoService.getListItems.mockResolvedValue(mockItems);
 
-            controller.getListItems(mockReq as Request, mockRes as Response);
+            await controller.getListItems(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.getListItems).toHaveBeenCalledWith('list-123');
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith(mockItems);
         });
 
-        it('should throw ListNotFoundError when list does not exist', () => {
-            mockToDoService.getListItems.mockImplementation(() => {
-                throw new ListNotFoundError('No list Found with id: list-123');
-            });
+        it('should throw ListNotFoundError when list does not exist', async () => {
+            mockToDoService.getListItems.mockRejectedValue(new ListNotFoundError('No list Found with id: list-123'));
 
-            expect(() => {
-                controller.getListItems(mockReq as Request, mockRes as Response);
-            }).toThrow(ListNotFoundError);
+            await expect(async () => {
+                await controller.getListItems(mockReq as Request, mockRes as Response);
+            }).rejects.toThrow(ListNotFoundError);
 
             expect(mockToDoService.getListItems).toHaveBeenCalledWith('list-123');
         });
 
-        it('should return empty array when list exists but has no items', () => {
+        it('should return empty array when list exists but has no items', async () => {
             const mockItems: any[] = [];
 
-            mockToDoService.getListItems.mockReturnValue(mockItems);
+            mockToDoService.getListItems.mockResolvedValue(mockItems);
 
-            controller.getListItems(mockReq as Request, mockRes as Response);
+            await controller.getListItems(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.getListItems).toHaveBeenCalledWith('list-123');
             expect(mockRes.status).toHaveBeenCalledWith(200);
@@ -116,30 +114,28 @@ describe('ToDoItemController Unit Tests', () => {
             });
         });
 
-        it('should return a specific item successfully', () => {
+        it('should return a specific item successfully', async () => {
             const mockItem = {
                 id: 'item-456',
                 content: 'Test item',
                 completed: false
             };
 
-            mockToDoService.getListItem.mockReturnValue(mockItem);
+            mockToDoService.getListItem.mockResolvedValue(mockItem);
 
-            controller.getListItem(mockReq as Request, mockRes as Response);
+            await controller.getListItem(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.getListItem).toHaveBeenCalledWith('list-123', 'item-456');
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith(mockItem);
         });
 
-        it('should throw ItemNotFoundError when list or item does not exist', () => {
-            mockToDoService.getListItem.mockImplementation(() => {
-                throw new ItemNotFoundError('No item found with id: item-456');
-            });
+        it('should throw ItemNotFoundError when list or item does not exist', async () => {
+            mockToDoService.getListItem.mockRejectedValue(new ItemNotFoundError('No item found with id: item-456'));
 
-            expect(() => {
-                controller.getListItem(mockReq as Request, mockRes as Response);
-            }).toThrow(ItemNotFoundError);
+            await expect(async () => {
+                await controller.getListItem(mockReq as Request, mockRes as Response);
+            }).rejects.toThrow(ItemNotFoundError);
 
             expect(mockToDoService.getListItem).toHaveBeenCalledWith('list-123', 'item-456');
         });
@@ -153,16 +149,16 @@ describe('ToDoItemController Unit Tests', () => {
             });
         });
 
-        it('should update an item successfully', () => {
+        it('should update an item successfully', async () => {
             const mockUpdatedItem = {
                 id: 'item-456',
                 content: 'Updated content',
                 completed: true
             };
 
-            mockToDoService.updateListItem.mockReturnValue(mockUpdatedItem);
+            mockToDoService.updateListItem.mockResolvedValue(mockUpdatedItem);
 
-            controller.updateListItem(mockReq as Request, mockRes as Response);
+            await controller.updateListItem(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.updateListItem).toHaveBeenCalledWith(
                 'list-123', 
@@ -173,14 +169,12 @@ describe('ToDoItemController Unit Tests', () => {
             expect(mockRes.json).toHaveBeenCalledWith(mockUpdatedItem);
         });
 
-        it('should throw ItemNotFoundError when list or item does not exist', () => {
-            mockToDoService.updateListItem.mockImplementation(() => {
-                throw new ItemNotFoundError('No item found with id: item-456');
-            });
+        it('should throw ItemNotFoundError when list or item does not exist', async () => {
+            mockToDoService.updateListItem.mockRejectedValue(new ItemNotFoundError('No item found with id: item-456'));
 
-            expect(() => {
-                controller.updateListItem(mockReq as Request, mockRes as Response);
-            }).toThrow(ItemNotFoundError);
+            await expect(async () => {
+                await controller.updateListItem(mockReq as Request, mockRes as Response);
+            }).rejects.toThrow(ItemNotFoundError);
 
             expect(mockToDoService.updateListItem).toHaveBeenCalledWith(
                 'list-123', 
@@ -189,7 +183,7 @@ describe('ToDoItemController Unit Tests', () => {
             );
         });
 
-        it('should handle partial updates correctly', () => {
+        it('should handle partial updates correctly', async () => {
             mockReq.body = { content: 'Only content update', completed: false };
             const mockUpdatedItem = {
                 id: 'item-456',
@@ -197,9 +191,9 @@ describe('ToDoItemController Unit Tests', () => {
                 completed: false
             };
 
-            mockToDoService.updateListItem.mockReturnValue(mockUpdatedItem);
+            mockToDoService.updateListItem.mockResolvedValue(mockUpdatedItem);
 
-            controller.updateListItem(mockReq as Request, mockRes as Response);
+            await controller.updateListItem(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.updateListItem).toHaveBeenCalledWith(
                 'list-123', 
@@ -218,30 +212,28 @@ describe('ToDoItemController Unit Tests', () => {
             });
         });
 
-        it('should delete an item successfully', () => {
+        it('should delete an item successfully', async () => {
             const mockDeletedItem = {
                 id: 'item-456',
                 content: 'Deleted item',
                 completed: false
             };
 
-            mockToDoService.deleteListItem.mockReturnValue(mockDeletedItem);
+            mockToDoService.deleteListItem.mockResolvedValue(mockDeletedItem);
 
-            controller.deleteListItem(mockReq as Request, mockRes as Response);
+            await controller.deleteListItem(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.deleteListItem).toHaveBeenCalledWith('list-123', 'item-456');
             expect(mockRes.status).toHaveBeenCalledWith(200);
             expect(mockRes.json).toHaveBeenCalledWith(mockDeletedItem);
         });
 
-        it('should throw ItemNotFoundError when list or item does not exist', () => {
-            mockToDoService.deleteListItem.mockImplementation(() => {
-                throw new ItemNotFoundError('No item found with id: item-456');
-            });
+        it('should throw ItemNotFoundError when list or item does not exist', async () => {
+            mockToDoService.deleteListItem.mockRejectedValue(new ItemNotFoundError('No item found with id: item-456'));
 
-            expect(() => {
-                controller.deleteListItem(mockReq as Request, mockRes as Response);
-            }).toThrow(ItemNotFoundError);
+            await expect(async () => {
+                await controller.deleteListItem(mockReq as Request, mockRes as Response);
+            }).rejects.toThrow(ItemNotFoundError);
 
             expect(mockToDoService.deleteListItem).toHaveBeenCalledWith('list-123', 'item-456');
         });
@@ -249,20 +241,20 @@ describe('ToDoItemController Unit Tests', () => {
 
 
     describe('Service Layer Integration', () => {
-        it('should properly pass parameters to service functions', () => {
+        it('should properly pass parameters to service functions', async () => {
             // Test createListItem service call
             mockReq = createMockRequest({
                 params: { listId: 'specific-list-id' },
                 body: { content: 'Specific content' }
             });
 
-            mockToDoService.createListItem.mockReturnValue({
+            mockToDoService.createListItem.mockResolvedValue({
                 id: 'item-123',
                 content: 'Specific content',
                 completed: false
             });
 
-            controller.createItem(mockReq as Request, mockRes as Response);
+            await controller.createItem(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.createListItem).toHaveBeenCalledWith('specific-list-id', {content:'Specific content'});
 
@@ -274,13 +266,13 @@ describe('ToDoItemController Unit Tests', () => {
                 body: { content: 'Updated specific content', completed: true }
             });
 
-            mockToDoService.updateListItem.mockReturnValue({
+            mockToDoService.updateListItem.mockResolvedValue({
                 id: 'update-item-id',
                 content: 'Updated specific content',
                 completed: true
             });
 
-            controller.updateListItem(mockReq as Request, mockRes as Response);
+            await controller.updateListItem(mockReq as Request, mockRes as Response);
 
             expect(mockToDoService.updateListItem).toHaveBeenCalledWith(
                 'update-list-id',

@@ -46,11 +46,11 @@ describe('ToDoItemService', () => {
 
     //Create Item
     describe('Create new item to a list', () => {
-        it('Should return new item when list exists', () => {
+        it('Should return new item when list exists', async () => {
             const mockedGenerateItemId = idGenerator.generateItemId as jest.MockedFunction<typeof idGenerator.generateItemId>;
             mockedGenerateItemId.mockReturnValue('item-test123');
 
-            const newItem = service.createListItem('list-sample1', {content: 'new sample item'});
+            const newItem = await service.createListItem('list-sample1', {content: 'new sample item'});
 
             expect(newItem).toBeDefined();
             expect(mockedGenerateItemId).toHaveBeenCalledTimes(1);
@@ -60,19 +60,17 @@ describe('ToDoItemService', () => {
  
             
         });
-        it('Should throw ListNotFoundError when list is not found', () => {
-            expect(() => {
-                service.createListItem('list-sample99', {content: 'new sample item'})
-            }).toThrow(ListNotFoundError);
+        it('Should throw ListNotFoundError when list is not found', async () => {
+            await expect(service.createListItem('list-sample99', {content: 'new sample item'})).rejects.toThrow(ListNotFoundError);
            
         });
-        it('Should add new item to a list', () => {
+        it('Should add new item to a list', async () => {
             const initialLength = toDoLists.find(list => list.id === 'list-sample1')?.items.length || 0;
 
             const mockedGenerateItemtId = idGenerator.generateItemId as jest.MockedFunction<typeof idGenerator.generateItemId>;
             mockedGenerateItemtId.mockReturnValue('item-test123');
 
-            const newItem = service.createListItem('list-sample1', {content: 'new sample item'});
+            const newItem = await service.createListItem('list-sample1', {content: 'new sample item'});
             const list = toDoLists.find(list => list.id === 'list-sample1');
 
             expect(list?.items).toHaveLength(initialLength + 1);
@@ -84,22 +82,19 @@ describe('ToDoItemService', () => {
 
     //Read Items
     describe('Get all Items', () => {
-        it('should return items from existing list', () => {
-            const items = service.getListItems('list-sample1');
+        it('should return items from existing list', async () => {
+            const items = await service.getListItems('list-sample1');
             expect(items).toBeDefined();
             expect(items).toHaveLength(2);
             expect(items?.[0].id).toBe('item-sample1');
             expect(items?.[1].id).toBe('item-sample2');
         });
 
-        it('should throw ListNotFoundError for non-existent list', () => {
-
-            expect(() => {
-                service.getListItems('list-nonexistent')
-            }).toThrow(ListNotFoundError);
+        it('should throw ListNotFoundError for non-existent list', async () => {
+            await expect(service.getListItems('list-nonexistent')).rejects.toThrow(ListNotFoundError);
         });
 
-        it('should return empty array for list with no items', () => {
+        it('should return empty array for list with no items', async () => {
             // Add a list with no items to test data
             toDoLists.push({
                 id: 'list-empty',
@@ -107,37 +102,33 @@ describe('ToDoItemService', () => {
                 items: []
             });
 
-            const items = service.getListItems('list-empty');
+            const items = await service.getListItems('list-empty');
             expect(items).toBeDefined();
             expect(items).toHaveLength(0);
         });
     });
 
     describe('Get item by id', () => {
-        it('should return specific item from existing list', () => {
-            const item = service.getListItem('list-sample1', 'item-sample1');
+        it('should return specific item from existing list', async () => {
+            const item = await service.getListItem('list-sample1', 'item-sample1');
             expect(item).toBeDefined();
             expect(item?.id).toBe('item-sample1');
             expect(item?.content).toBe('Sample item 1');
             expect(item?.completed).toBe(false);
         });
 
-        it('should throw ItemNotFoundError for non-existent item in existing list', () => {
-            expect(() => {
-                service.getListItem('list-sample1', 'item-nonexistent')
-            }).toThrow(ItemNotFoundError);
+        it('should throw ItemNotFoundError for non-existent item in existing list', async () => {
+            await expect(service.getListItem('list-sample1', 'item-nonexistent')).rejects.toThrow(ItemNotFoundError);
         });
 
-        it('should throw ListNotFoundError for item in non-existent list', () => {
-            expect(() => {
-                service.getListItem('list-nonexistent', 'item-sample1')
-            }).toThrow(ListNotFoundError);
+        it('should throw ListNotFoundError for item in non-existent list', async () => {
+            await expect(service.getListItem('list-nonexistent', 'item-sample1')).rejects.toThrow(ListNotFoundError);
         });
     });
 
     describe('Update item by id', () => {
-        it('should update existing item with partial data', () => {
-            const updatedItem = service.updateListItem('list-sample1', 'item-sample1', {
+        it('should update existing item with partial data', async () => {
+            const updatedItem = await service.updateListItem('list-sample1', 'item-sample1', {
                 completed: true
             });
 
@@ -147,8 +138,8 @@ describe('ToDoItemService', () => {
             expect(updatedItem?.completed).toBe(true); // updated
         });
 
-        it('should update multiple properties of existing item', () => {
-            const updatedItem = service.updateListItem('list-sample1', 'item-sample1', {
+        it('should update multiple properties of existing item', async () => {
+            const updatedItem = await service.updateListItem('list-sample1', 'item-sample1', {
                 content: 'Updated content',
                 completed: true
             });
@@ -159,31 +150,29 @@ describe('ToDoItemService', () => {
             expect(updatedItem?.completed).toBe(true);
         });
 
-        it('should throw ItemNotFoundError for non-existent item', () => {
-            expect(() => {
-                service.updateListItem('list-sample1', 'item-nonexistent', {
+        it('should throw ItemNotFoundError for non-existent item', async () => {
+            await expect(service.updateListItem('list-sample1', 'item-nonexistent', {
                 completed: true
-            })
-            }).toThrow(ItemNotFoundError);
+            })).rejects.toThrow(ItemNotFoundError);
         });
 
-        it('should throw ListNotFoundError for item in non-existent list', () => {
-            expect(() => {service.updateListItem('list-nonexistent', 'item-sample1', {
+        it('should throw ListNotFoundError for item in non-existent list', async () => {
+            await expect(service.updateListItem('list-nonexistent', 'item-sample1', {
                 completed: true
-            })}).toThrow(ListNotFoundError);
+            })).rejects.toThrow(ListNotFoundError);
         });
 
-        it('should actually modify the item in the list', () => {
-            service.updateListItem('list-sample1', 'item-sample1', { completed: true });
+        it('should actually modify the item in the list', async () => {
+            await service.updateListItem('list-sample1', 'item-sample1', { completed: true });
             
-            const retrievedItem = service.getListItem('list-sample1', 'item-sample1');
+            const retrievedItem = await service.getListItem('list-sample1', 'item-sample1');
             expect(retrievedItem?.completed).toBe(true);
         });
     });
 
     describe('Delete item by id', () => {
-        it('should delete existing item and return it', () => {
-            const deletedItem = service.deleteListItem('list-sample1', 'item-sample1');
+        it('should delete existing item and return it', async () => {
+            const deletedItem = await service.deleteListItem('list-sample1', 'item-sample1');
 
             expect(deletedItem).toBeDefined();
             expect(deletedItem?.id).toBe('item-sample1');
@@ -191,37 +180,33 @@ describe('ToDoItemService', () => {
             expect(deletedItem?.completed).toBe(false);
         });
 
-        it('should remove item from the list', () => {
-            const initialLength = service.getListItems('list-sample1')?.length || 0;
+        it('should remove item from the list', async () => {
+            const initialLength = (await service.getListItems('list-sample1'))?.length || 0;
             
-            service.deleteListItem('list-sample1', 'item-sample1');
+            await service.deleteListItem('list-sample1', 'item-sample1');
             
-            const items = service.getListItems('list-sample1');
+            const items = await service.getListItems('list-sample1');
             expect(items).toHaveLength(initialLength - 1);
             
-            expect(() => {service.getListItem('list-sample1', 'item-sample1')}).toThrow(ItemNotFoundError);
+            await expect(service.getListItem('list-sample1', 'item-sample1')).rejects.toThrow(ItemNotFoundError);
             
         });
 
-        it('should throw ItemNotFoundError for non-existent item', () => {
-            expect(() => {
-                service.deleteListItem('list-sample1', 'item-nonexistent')
-            }).toThrow(ItemNotFoundError);
+        it('should throw ItemNotFoundError for non-existent item', async () => {
+            await expect(service.deleteListItem('list-sample1', 'item-nonexistent')).rejects.toThrow(ItemNotFoundError);
         });
 
-        it('should return undefined for item in non-existent list', () => {
-            expect(() => {
-                service.deleteListItem('list-nonexistent', 'item-sample1')
-            }).toThrow(ListNotFoundError);
+        it('should return undefined for item in non-existent list', async () => {
+            await expect(service.deleteListItem('list-nonexistent', 'item-sample1')).rejects.toThrow(ListNotFoundError);
         });
 
-        it('should not affect other items when deleting', () => {
-            const allItemsBefore = service.getListItems('list-sample1');
+        it('should not affect other items when deleting', async () => {
+            const allItemsBefore = await service.getListItems('list-sample1');
             const otherItems = allItemsBefore?.filter(item => item.id !== 'item-sample1');
             
-            service.deleteListItem('list-sample1', 'item-sample1');
+            await service.deleteListItem('list-sample1', 'item-sample1');
             
-            const allItemsAfter = service.getListItems('list-sample1');
+            const allItemsAfter = await service.getListItems('list-sample1');
             expect(allItemsAfter).toEqual(otherItems);
         });
     });
