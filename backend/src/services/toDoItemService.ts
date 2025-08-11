@@ -6,10 +6,10 @@ import { validateData } from "../middleware/validators/businessValidation";
 import { TodoItemSchema, TodoItemCreateSchema } from "../schemas/BusinessSchemas";
 import { logger } from "../utils/logger/logger";
 
-export const createListItem = (listId: string, item: Partial <ToDoItem>): ToDoItem => {
+export const createListItem = async(listId: string, item: Partial <ToDoItem>): Promise<ToDoItem> => {
     const validatedItem = validateData(item, TodoItemCreateSchema);
     
-    const items = getListItems(listId);
+    const items = await getListItems(listId);
 
     const newItem: ToDoItem = {
         id: generateItemId(),
@@ -27,10 +27,14 @@ export const createListItem = (listId: string, item: Partial <ToDoItem>): ToDoIt
     return newItem;
 };
 
-export const getListItems = (listId: string): ToDoItem[] => getList(listId).items;
+export const getListItems = async(listId: string): Promise<ToDoItem[]> => {
+    const list = await getList(listId);
+    return list.items
+}
 
-export const getListItem = (listId: string, itemId: string): ToDoItem => {
-    const item = getListItems(listId).find(item => item.id === itemId);
+export const getListItem = async (listId: string, itemId: string): Promise<ToDoItem> => {
+    const items = await getListItems(listId);
+    const item = items.find(item => item.id === itemId);
     if (!item) throw new ItemNotFoundError(`No item found with id: ${itemId}`);
 
     logger.debug({
@@ -41,9 +45,9 @@ export const getListItem = (listId: string, itemId: string): ToDoItem => {
     return item;
 };
 
-export const updateListItem = (listId: string, itemId: string, updates: Partial <ToDoItem>): ToDoItem => {
+export const updateListItem = async (listId: string, itemId: string, updates: Partial <ToDoItem>): Promise<ToDoItem> => {
     const valitadedUpdates = validateData(updates, TodoItemSchema);
-    const result = findItemInList(listId, itemId);
+    const result = await findItemInList(listId, itemId);
     
     Object.assign(result.items[result.index], valitadedUpdates);
 
@@ -59,8 +63,8 @@ export const updateListItem = (listId: string, itemId: string, updates: Partial 
     return result.items[result.index];
 };
 
-export const deleteListItem = (listId: string, itemId: string): ToDoItem => {
-    const result = findItemInList(listId, itemId);
+export const deleteListItem = async (listId: string, itemId: string): Promise<ToDoItem> => {
+    const result = await findItemInList(listId, itemId);
     
     logger.info({
         operation: 'deleteListItem',
@@ -70,8 +74,8 @@ export const deleteListItem = (listId: string, itemId: string): ToDoItem => {
     return result.items.splice(result.index, 1)[0];
 };
 
-const findItemInList = (listId: string, itemId: string): {items: ToDoItem[], index: number} => {
-    const items = getListItems(listId);
+const findItemInList = async (listId: string, itemId: string): Promise<{items: ToDoItem[], index: number}> => {
+    const items = await getListItems(listId);
     const index = items.findIndex(item => item.id === itemId);
     if (index === -1) throw new ItemNotFoundError(`No item found with id: ${itemId}`);
 

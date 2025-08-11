@@ -6,19 +6,19 @@ import { validateData } from "../middleware/validators/businessValidation";
 import { ToDoListSchema } from "../schemas/BusinessSchemas";
 import { logger } from "../utils/logger/logger";
 
-export const getLists = (): ToDoList[] => toDoLists;
+export const getLists = async (): Promise<ToDoList[]> => toDoLists;
 
-export const getList = (listId: string): ToDoList => {
+export const getList = async (listId: string): Promise<ToDoList> => {
     const list = toDoLists.find(list => list.id === listId);
     if (!list) throw new ListNotFoundError(`No list Found with id: ${listId}`);
 
     return list;
 };
 
-export const updateList = (listId: string, listUpdate: Partial<ToDoList>): ToDoList => {
+export const updateList = async (listId: string, listUpdate: Partial<ToDoList>): Promise<ToDoList> => {
     const validatedListUpdate = validateData(listUpdate, ToDoListSchema);
    
-    const list = getList(listId);
+    const list = await getList(listId);
     
     const oldTitle = list.title;
 
@@ -37,8 +37,8 @@ export const updateList = (listId: string, listUpdate: Partial<ToDoList>): ToDoL
     return list;
 };
 
-export const deleteList = (listId: string): ToDoList => {
-    const list = getList(listId);
+export const deleteList = async (listId: string): Promise<ToDoList> => {
+    const list = await getList(listId);
 
     const index = toDoLists.findIndex(list => list.id === listId);
 
@@ -50,7 +50,7 @@ export const deleteList = (listId: string): ToDoList => {
     return toDoLists.splice(index, 1)[0];
 }
 
-export const createList = (list: Partial<ToDoList>): ToDoList => {
+export const createList = async(list: Partial<ToDoList>): Promise<ToDoList> => {
     const validatedList = validateData(list, ToDoListSchema);
     
     const newlist: ToDoList = {
